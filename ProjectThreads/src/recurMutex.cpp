@@ -21,6 +21,17 @@ pthread_mutex_t tid_lock; // lock dealing with @currThreadID and @proc_id
 int count; // count for how many times the thread has acquired the lock
 pthread_mutex_t count_lock; // lock dealing with count
 
+// ANSWER START
+
+// NOTE:
+// i have used two different mutex for tid and count
+// this only benefits unlock however since thats the only place the two are not read togher
+// both locking functions have to consider count irrespective of tid mathcing or not
+// in the case of same tid, just increment ctr
+// in case of diff tid check count to see if can be acquired
+
+// ANSWER END
+
 // makes a recursive lock that shall be used by recur_mutex_lock and recur_mutex_unlock (as parameters)
 int recur_mutex_init(pthread_mutex_t* mutex)
 {
@@ -47,7 +58,7 @@ int recur_mutex_destroy(pthread_mutex_t* mutex)
 int recur_mutex_try_lock(pthread_mutex_t* mutex)
 {
   // 1 - check to see if same or different thread is trying to acquire lock
-  // 2.1 - if different thread tries to lock then return -1 to signal unable to acquire locl
+  // 2.1 - if different thread tries to lock but cannot then return -1 to signal unable to acquire locl
   // 2.2 - if same thread tries to lock then let it 'lock' and store info that thread has acquired lock n+1 times
 
   // note that unlike lock, both situations immediately return from the function
@@ -59,7 +70,22 @@ int recur_mutex_try_lock(pthread_mutex_t* mutex)
   // =================================================================================
   // =================================================================================
 
-  
+  // should i read @currThreadID and connected together or separate
+  // in another words: do i need two separate locks or is one fine
+
+  pthread_mutex_lock(&tid_lock);
+
+    // same thread tries to reacquire lock
+    if (currThreadID == pthread_self())
+    {
+
+    }
+    else
+    {
+
+    }
+
+  pthread_mutex_unlock(&tid_lock);
 
   return 0;
 }
