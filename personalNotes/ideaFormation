@@ -1,0 +1,3 @@
+1] Implementation of recursive mutexes
+2] Implementation of recursive semaphores (counting)
+2] Add thread pooling
