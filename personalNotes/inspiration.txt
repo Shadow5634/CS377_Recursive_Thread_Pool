@@ -1,0 +1,9 @@
+* I remember while doing the threading project on banking I was not comfortable with the fact
+that I could not call different class methods since it would have messed up logging
+* It felt like a small problem at the time since the duplication of code was relatively small
+* However, I started to think about longer code segments and through that it would not be extendable
+
+* I started to think about it more and realized for transfer to still be atomic and not permit context switches
+* I would have to lock at the start of transfer, call deposit and withdraw and then release lock
+* However since withdraw and deposit will also try to acquire the locks it would lead to deadlocks
+* I researched a bit on how one can counter this and came across recursive locks
