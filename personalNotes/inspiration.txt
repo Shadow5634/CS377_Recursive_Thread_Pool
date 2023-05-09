@@ -7,3 +7,6 @@ that I could not call different class methods since it would have messed up logg
 * I would have to lock at the start of transfer, call deposit and withdraw and then release lock
 * However since withdraw and deposit will also try to acquire the locks it would lead to deadlocks
 * I researched a bit on how one can counter this and came across recursive locks
+
+* It turns out that recursive locks have already been implemented - attr specifier for pthread_init
+* Thus i thought that making a project implementing that would be interesting.
