@@ -1,5 +1,5 @@
 run_main:
-	g++ src/main.cpp
+	g++ src/main.cpp src/recurMutex.cpp
 
 # -f flag ignores case where specified files do not exist
 clean:

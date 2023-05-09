@@ -14,10 +14,16 @@
   #include <sys/mman.h>
   #include <fstream>
 
+  // makes a recursive lock that shall be used by recur_mutex_lock and recur_mutex_unlock (as parameters)
+  int recur_mutex_init(pthread_mutex_t* mutex);
+
+  // destroys the created recursive lock
+  int recur_mutex_destroy(pthread_mutex_t* mutex);
+
   // tries to lock a mutex using recursive lock approach
-  int lock(pthread_mutex_t* mutex);
+  int recur_mutex_lock(pthread_mutex_t* mutex);
 
   // tries to unlock a mutex using recursive lock approach
-  int unlock(pthread_mutex_t* mutex);
+  int recur_mutex_lock(pthread_mutex_t* mutex);
 
 #endif 
