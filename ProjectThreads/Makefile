@@ -7,3 +7,6 @@ clean:
 	rm -f *.out
 
 .PHONY: clean
+
+# want to make object files first - faster and easier compilation
+# check dependencies - might help to get rid of relative paths in main
