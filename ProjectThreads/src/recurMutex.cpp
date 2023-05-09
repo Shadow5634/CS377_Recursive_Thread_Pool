@@ -30,6 +30,10 @@ pthread_mutex_t count_lock; // lock dealing with count
 // in the case of same tid, just increment ctr
 // in case of diff tid check count to see if can be acquired
 
+// it might be possible to use @currThreadID = -1 to signal that lock is free to be acquired
+// in this case it acts as the mutex to be utilized for condition variables
+
+// it does not seem to be the case but think about whether these functions must be atomic
 // ANSWER END
 
 // makes a recursive lock that shall be used by recur_mutex_lock and recur_mutex_unlock (as parameters)
