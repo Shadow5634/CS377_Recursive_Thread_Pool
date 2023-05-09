@@ -29,10 +29,13 @@
   // destroys the created recursive lock
   int recur_mutex_destroy(pthread_mutex_t* mutex);
 
-  // tries to lock a mutex using recursive lock approach
+  // blocking function to lock a mutex using recursive lock approach
   int recur_mutex_lock(pthread_mutex_t* mutex);
 
-  // tries to unlock a mutex using recursive lock approach
-  int recur_mutex_lock(pthread_mutex_t* mutex);
+  // unlocks a mutex using recursive lock approach
+  int recur_mutex_unlock(pthread_mutex_t* mutex);
+
+  // non-blocking function that tries to lock a mutex using recursive lock approach
+  int recur_mutex_try_lock(pthread_mutex_t* mutex);
 
 #endif 
