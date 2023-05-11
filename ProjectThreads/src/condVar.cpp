@@ -3,7 +3,7 @@
 // 1 - pause, 2 - nanosleep, 3 - sched_yield
 // for now consider pause
 // you will need a variable to confirm that the condVar for init and the one used for the other methods is the same
-// you will need a singal handler for a user defined signal that does nothing
+// you will need a singal handler for SIGUSR1 [default is to terminate which you don't want to occur]
 // you could incorporate a bounded buffer here
 // since you will need to keep track of which threads are sleeping on the condition to wake them up
   // this will require additional condition variables and mutexes
