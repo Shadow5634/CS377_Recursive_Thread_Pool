@@ -172,6 +172,37 @@ int recur_mutex_unlock(pthread_mutex_t* mutex)
   return res;
 }
 
+int recur_unlock_NEW()
+{
+  pthread_mutex_lock(&tid_lock);
+    // lock already free or trying to free a lock you have not acquired
+    // will it be a good safety to have broadcast or signal here as well? 
+    if ((currThreadID == 0) || (currThreadID != pthread_self()))
+    {
+      pthread_mutex_unlock(&tid_lock);
+      return -1;
+    }
+  pthread_mutex_unlock(&tid_lock);
+
+  pthread_mutex_lock(&count_lock);
+
+    // recursive lock released by one level
+    if (--count != 0)
+    {
+      pthread_mutex_unlock(&count_lock);
+      return 0;
+    }
+
+  pthread_mutex_unlock(&count_lock);
+
+  pthread_mutex_lock(&tid_lock);
+    currThreadID = 0;
+  pthread_mutex_unlock(&tid_lock);
+
+  pthread_cond_broadcast(&sleep_cond);
+  return 1;
+}
+
 // tries to lock a mutex using recursive lock approach
 int recur_mutex_lock(pthread_mutex_t* mutex)
 {
@@ -214,3 +245,5 @@ int recur_mutex_lock(pthread_mutex_t* mutex)
 // THINK ABOUT THE FOLLOWING:
 // when you swtitch between locks for tid and count can a different thread affect any of the globals
 // i.e. read or write the wrong value
+// check that the same mutex as init is passed
+// need to add checks for that
