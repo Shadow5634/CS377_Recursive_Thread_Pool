@@ -1,5 +1,5 @@
 run_main:
-	g++ src/main.cpp src/recurMutex.cpp
+	g++ src/main.cpp src/recurMutex.cpp src/condVar.cpp
 
 # -f flag ignores case where specified files do not exist
 clean:
