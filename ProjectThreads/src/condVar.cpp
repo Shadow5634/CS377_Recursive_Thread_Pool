@@ -8,6 +8,8 @@
 // since you will need to keep track of which threads are sleeping on the condition to wake them up
   // this will require additional condition variables and mutexes
 
+pthread_cond_t* initCondVar;
+
 int cond_var_init(pthread_cond_t* condVar)
 {
   // ASSUME INTIALIZING IT WILL NULL - DEFAULT ATTRIBUTES
