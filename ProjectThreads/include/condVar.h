@@ -22,4 +22,14 @@
   // PART 2 - Function TODOs
   ////////////////////////////////////////
 
+  int cond_var_init(pthread_cond_t* condVar);
+
+  int cond_var_destroy(pthread_cond_t* condVar);
+
+  int cond_var_wait(pthread_cond_t* condVar);
+
+  int cond_var_signal(pthread_cond_t* condVar);
+
+  int cond_var_broadcast(pthread_cond_t* condVar);
+
 #endif

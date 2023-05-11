@@ -24,6 +24,9 @@ pthread_cond_t sleep_cond = PTHREAD_COND_INITIALIZER; // condition variable that
 int count = 0; // count for how many times the thread has acquired the lock
 pthread_mutex_t count_lock = PTHREAD_MUTEX_INITIALIZER;; // lock dealing with count
 
+// ensure that same mutex is used always
+pthread_mutex_t* mutexAddr;
+
 // ANSWER START
 
 // NOTE:
