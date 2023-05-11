@@ -154,7 +154,7 @@ int recur_mutex_unlock(pthread_mutex_t* mutex)
     pthread_mutex_lock(&count_lock);
 
       // recursive lock released all the way - it is now truly unlocked
-      if (--count = 0)
+      if (--count == 0)
       {
         currThreadID = 0;
         pthread_cond_broadcast(&sleep_cond); // signal should suffice, threads are all same if not acquired unlike malloc where diff threads asking for different memory
@@ -210,3 +210,7 @@ int recur_mutex_lock(pthread_mutex_t* mutex)
 
   return 0;
 }
+
+// THINK ABOUT THE FOLLOWING:
+// when you swtitch between locks for tid and count can a different thread affect any of the globals
+// i.e. read or write the wrong value
