@@ -1,1 +1,6 @@
 1] Don't forget to use -lpthread -pthread flags for compiling
+
+2] CLARIFY RECURMUTEX UNLOCK FUNCTION - how to decide # locks for #globals
+3] DISCUSS THE DIFFERENCE BETWEEN SIGNAL AND BROADCAST
+4] SEEMS LIKE I AM HAVING TO USE CONDITION VARIABLES TO IMPLEMENT CONDITION VARIABLES
+    - should i be using sem_wait and post and spin lock protections instead?

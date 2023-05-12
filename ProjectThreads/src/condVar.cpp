@@ -43,12 +43,16 @@ int cond_var_wait(pthread_cond_t* condVar, pthread_mutex_t* mutex)
 {
   // might want to have checking to ensure that mutex has been acquired and locked
   // put to sleep using pause and then reacquire lock before returning
+
   // do you want to add to sleeping array before or after releasing lock
-  // do you want to remove from sleeping array before or after releasing lock
+  // do you want to remove from sleeping array before or after releasing lock - BEFORE
+  // The above two should not matter since mutex does not relate to any globals in this class
+  // might want to prioritize making lock free first to allow more concurrency
+
+  // might want to use sigwaitinfo and sigpromask to deal with signal scheduling
   pthread_mutex_unlock(mutex);
   pause();
   // before acquiring lock gain remove yourself from the sleeping_threads array'
-  // might want to use sigwaitinfo and sigpromask to deal with signal scheduling
   pthread_mutex_lock(mutex);
   return 0;
 }
