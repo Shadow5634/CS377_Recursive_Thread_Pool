@@ -6,3 +6,5 @@
     - should i be using sem_wait and post and spin lock protections instead?
 
 cond wait working with recurnotes
+change into classes to make it possible to create multiple of them
+encase tid and count into one structure and one lock for the entire structure

@@ -1,0 +1,2 @@
+Having locks for each variable one common one
+Having recursive works work with pthread_cond_wait()
