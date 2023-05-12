@@ -17,6 +17,7 @@
   #include <unistd.h>
   #include <sys/mman.h>
   #include <fstream>
+  #include <signal.h>
 
   ////////////////////////////////////////
   // PART 2 - Function TODOs
