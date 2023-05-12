@@ -4,3 +4,5 @@
 3] DISCUSS THE DIFFERENCE BETWEEN SIGNAL AND BROADCAST
 4] SEEMS LIKE I AM HAVING TO USE CONDITION VARIABLES TO IMPLEMENT CONDITION VARIABLES
     - should i be using sem_wait and post and spin lock protections instead?
+
+cond wait working with recurnotes
