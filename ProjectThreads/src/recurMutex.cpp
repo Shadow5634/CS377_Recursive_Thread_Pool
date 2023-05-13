@@ -44,8 +44,18 @@ pthread_mutex_t* mutexAddr;
 // MIGHT WANT TO CHECK THAT INIT AND DESTROY CALLED ONLY ONCE
 // ANSWER END
 
+RecursiveLock::RecursiveLock()
+{
+
+}
+
+RecursiveLock::~RecursiveLock()
+{
+  
+}
+
 // makes a recursive lock that shall be used by recur_mutex_lock and recur_mutex_unlock (as parameters)
-int recur_mutex_init(pthread_mutex_t* mutex)
+int RecursiveLock::recur_mutex_init(pthread_mutex_t* mutex)
 {
   // =================================================================================
   // =================================================================================
@@ -57,7 +67,7 @@ int recur_mutex_init(pthread_mutex_t* mutex)
 }
 
 // destroys the created recursive lock
-int recur_mutex_destroy(pthread_mutex_t* mutex)
+int RecursiveLock::recur_mutex_destroy(pthread_mutex_t* mutex)
 {
   // =================================================================================
   // =================================================================================
@@ -69,7 +79,7 @@ int recur_mutex_destroy(pthread_mutex_t* mutex)
 }
 
 // tries to unlock a mutex using recursive lock approach
-int recur_mutex_try_lock(pthread_mutex_t* mutex)
+int RecursiveLock::recur_mutex_try_lock(pthread_mutex_t* mutex)
 {
   // 1 - check to see if same or different thread is trying to acquire lock
   // 2.1 - if different thread tries to lock but cannot then return -1 to signal unable to acquire locl
@@ -122,7 +132,7 @@ int recur_mutex_try_lock(pthread_mutex_t* mutex)
 }
 
 // tries to unlock a mutex using recursive lock approach
-int recur_mutex_unlock(pthread_mutex_t* mutex)
+int RecursiveLock::recur_mutex_unlock(pthread_mutex_t* mutex)
 {
   // 1 - check to see if the thread trying to unlock even has the lock (note that there are 2 parts to this)
   // 2.1 - if it does not have the lock return error
@@ -175,7 +185,7 @@ int recur_mutex_unlock(pthread_mutex_t* mutex)
   return res;
 }
 
-int recur_unlock_NEW()
+int RecursiveLock::recur_unlock_NEW()
 {
   pthread_mutex_lock(&tid_lock);
     // lock already free or trying to free a lock you have not acquired
@@ -207,7 +217,7 @@ int recur_unlock_NEW()
 }
 
 // tries to lock a mutex using recursive lock approach
-int recur_mutex_lock(pthread_mutex_t* mutex)
+int RecursiveLock::recur_mutex_lock(pthread_mutex_t* mutex)
 {
   // 1 - check to see if same or different thread is trying to acquire lock
   // 2.1 - if different thread tries to lock then put it waiting on a condition variable
