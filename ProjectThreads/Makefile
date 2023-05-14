@@ -1,6 +1,6 @@
 run_main:
-	g++ -pthread src/main.cpp src/recurMutex.cpp src/condVar.cpp
-
+	g++ -pthread -Wall src/main.cpp src/recurMutex.cpp src/condVar.cpp
+# Wall is to enable all the warnings
 # -f flag ignores case where specified files do not exist
 clean:
 	rm -f *.o
