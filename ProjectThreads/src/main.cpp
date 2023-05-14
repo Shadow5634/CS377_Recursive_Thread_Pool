@@ -10,5 +10,5 @@ int main(int argc, char** argv)
 
 void basicRecurTest()
 {
-  RecursiveMutex rm = new RecursiveMutex();
+  RecursiveLock* rm = new RecursiveLock();
 }

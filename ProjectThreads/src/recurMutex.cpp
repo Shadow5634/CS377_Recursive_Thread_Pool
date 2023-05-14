@@ -167,8 +167,6 @@ int RecursiveLock::recur_mutex_lock()
   // =================================================================================
   // =================================================================================
 
-  int res; // do you want to differentiate between reacquisition and first acquisition
-
   pthread_mutex_lock(&(this->info_lock));
     // lock has been acquired by a different thread   
     // infinitely wait until you can assume control
