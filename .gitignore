@@ -1,1 +1,6 @@
-ProjectThreads/a.out
+# undo later so that other graders can directly run code witout sftp ssh connections
+ProjectThreads/lock_app
+ProjectThreads/lock_test
+ProjectThreads/obj/*
+
+# !ProjectThreads/obj/empty.txt
