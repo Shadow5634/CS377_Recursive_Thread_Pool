@@ -47,19 +47,23 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
 int ConditionVariable::cond_var_signal()
 {
-  // may not make much sense now
+  // how do you ensure that a random #threads >= 1 could be woken up
   return 0;
 }
 
 int ConditionVariable::cond_var_broadcast()
 {
-  // confirm that sleeping_threads[i] is a valid tid
-  auto elemItr = this->sleeping_threads.begin();
-  while (elemItr != this->sleeping_threads.end())
-  {
-    pthread_kill(*elemItr, SIGUSR1);
-    elemItr++;
-  }
+  // confirm that sleeping_threads[i] is a valid tid - maintained through insertion and deletion from clue
+  // what do you do if no threads are sleeping
+  pthread_mutex_lock(&(this->list_lock));
+    auto elemItr = this->sleeping_threads.begin();
+
+    while (elemItr != this->sleeping_threads.end())
+    {
+      pthread_kill(*elemItr, SIGUSR1);
+      elemItr++;
+    }
+  pthread_mutex_lock(&(this->list_lock));
 
   return 0;
 }
