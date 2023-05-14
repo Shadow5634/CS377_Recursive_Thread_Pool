@@ -1,6 +1,9 @@
+# Wall is to enable all the warnings
 run_main:
 	g++ -pthread -Wall src/main.cpp src/recurMutex.cpp src/condVar.cpp
-# Wall is to enable all the warnings
+
+#g++ test/test.cpp -lm -lstdc++ -lgtest -lgtest_main -lpthread -Wall -Wextra -g -pthread
+
 # -f flag ignores case where specified files do not exist
 clean:
 	rm -f *.o
