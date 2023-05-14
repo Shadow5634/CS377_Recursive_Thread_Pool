@@ -18,19 +18,32 @@
   #include <sys/mman.h>
   #include <fstream>
   #include <signal.h>
+  #include <list>
+  #include <unordered_map>
 
-  ////////////////////////////////////////
-  // PART 2 - Function TODOs
-  ////////////////////////////////////////
+  using namespace std;
 
-  int cond_var_init(pthread_cond_t* condVar);
+  ////////////////////////////////////////////////
+  // PART 3 - Function TODOs (Class Declaration)
+  ////////////////////////////////////////////////
 
-  int cond_var_destroy(pthread_cond_t* condVar);
+  class ConditionVariable
+  {
+    private:
 
-  int cond_var_wait(pthread_cond_t* condVar, pthread_mutex_t* mutex);
+      list<pthread_t> sleeping_threads;
+      pthread_mutex_t list_lock;
 
-  int cond_var_signal(pthread_cond_t* condVar);
+    public:
+      ConditionVariable();
 
-  int cond_var_broadcast(pthread_cond_t* condVar);
+      ~ConditionVariable();
+
+      int cond_var_wait(pthread_mutex_t* mutex);
+
+      int cond_var_signal();
+
+      int cond_var_broadcast();
+  };
 
 #endif

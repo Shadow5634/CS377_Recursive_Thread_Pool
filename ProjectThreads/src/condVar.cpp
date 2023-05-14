@@ -17,29 +17,22 @@ pthread_t sleeping_threads[THREAD_COUNT];
 
 void cond_wait_sleeper(int sigNum)
 {
-  // do nothing
+  cout << "Received SIGUSR1" <<  endl;
 }
 
-int cond_var_init(pthread_cond_t* condVar)
+ConditionVariable::ConditionVariable()
 {
-  // ASSUME INTIALIZING IT WILL NULL - DEFAULT ATTRIBUTES
-  // create cond var, store address, and use a user signal for waiting simulation
-  pthread_cond_init(condVar, NULL);
-  initCondVar = condVar;
   signal(SIGUSR1, cond_wait_sleeper);
-  return 0;
+  pthread_mutex_init(&(this->list_lock), NULL);
 }
 
-int cond_var_destroy(pthread_cond_t* condVar)
+ConditionVariable::~ConditionVariable()
 {
-  // destroy cond var, remove address, and get rid of signal handler 
-  pthread_cond_destroy(condVar);
-  initCondVar = NULL;
   signal(SIGUSR1, SIG_DFL);
-  return 0;
+  pthread_mutex_destroy(&(this->list_lock));
 }
 
-int cond_var_wait(pthread_cond_t* condVar, pthread_mutex_t* mutex)
+int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 {
   // might want to have checking to ensure that mutex has been acquired and locked
   // put to sleep using pause and then reacquire lock before returning
@@ -57,18 +50,20 @@ int cond_var_wait(pthread_cond_t* condVar, pthread_mutex_t* mutex)
   return 0;
 }
 
-int cond_var_signal(pthread_cond_t* condVar)
+int ConditionVariable::cond_var_signal()
 {
   // may not make much sense now
   return 0;
 }
 
-int cond_var_broadcast(pthread_cond_t* condVar)
+int ConditionVariable::cond_var_broadcast()
 {
   // confirm that sleeping_threads[i] is a valid tid
-  for (int i = 0; i < THREAD_COUNT; i++)
+  auto elemItr = this->sleeping_threads.begin();
+  while (elemItr != this->sleeping_threads.end())
   {
-    pthread_kill(sleeping_threads[i], SIGUSR1);
+    pthread_kill(*elemItr, SIGUSR1);
+    elemItr++;
   }
 
   return 0;
