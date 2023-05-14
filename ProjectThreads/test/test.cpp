@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
+#include "../include/recurMutex.h"
+#include "../include/condVar.h"
 
 using namespace std;
 
 TEST(TempTest, Test1)
 {
   // carry out code
-  cout << "TEST RUNS" << endl;
+  cout << "Test works" << endl;
 }
 
 int main(int argc, char **argv) 
