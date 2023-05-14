@@ -81,12 +81,13 @@ int RecursiveLock::recur_mutex_try_lock()
     {
       res = 0;
     }
-    // recursive acquisition of a free lock by different thread 
+    // acquisition of a free lock by different thread 
     else if (this->info.currThreadID == 0)
     {
       this->info.currThreadID = pthread_self();
       res = 1;
     }
+    // acquisition of unfree lock by different thread - ERROR
     else
     {
       pthread_mutex_unlock(&(this->info_lock));
