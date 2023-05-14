@@ -10,11 +10,6 @@
 // since you will need to keep track of which threads are sleeping on the condition to wake them up
   // this will require additional condition variables and mutexes
 
-#define THREAD_COUNT 10
-
-pthread_cond_t* initCondVar = NULL;
-pthread_t sleeping_threads[THREAD_COUNT];
-
 void cond_wait_sleeper(int sigNum)
 {
   cout << "Received SIGUSR1" <<  endl;
