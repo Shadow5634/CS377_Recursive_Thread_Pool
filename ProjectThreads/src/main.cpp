@@ -23,6 +23,8 @@ void basicRecurTest()
     rm->recur_mutex_unlock();
   }
 
+  cout << "Count: " << rm->get_acqui_count() << endl;
+  cout << "Thread: " << rm->get_lock_owner() << endl;
   delete rm;
   cout << "BASIC RECURSION TEST: PASSSSSSS" << endl;
 }
