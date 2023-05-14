@@ -79,6 +79,12 @@ int ConditionVariable::cond_var_signal()
 
 int ConditionVariable::cond_var_broadcast()
 {
+
+  // return 1 - threads were sleeping
+  // return 0 - no threads sleeping
+
+  int res = 0;
+
   // list insertion/deletion ensures tid are all valid
   pthread_mutex_lock(&(this->list_lock));
     auto elemItr = this->sleeping_threads.begin();
@@ -87,8 +93,9 @@ int ConditionVariable::cond_var_broadcast()
     {
       pthread_kill(*elemItr, SIGUSR1);
       elemItr++;
+      res = 1;
     }
   pthread_mutex_unlock(&(this->list_lock));
 
-  return 0;
+  return res;
 }
