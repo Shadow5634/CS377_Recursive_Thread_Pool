@@ -3,4 +3,4 @@ ProjectThreads/lock_app
 ProjectThreads/lock_test
 ProjectThreads/obj/*
 
-# !ProjectThreads/obj/empty.txt
+!ProjectThreads/obj/empty.txt
