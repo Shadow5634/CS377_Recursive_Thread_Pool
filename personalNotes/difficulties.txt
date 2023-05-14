@@ -1,5 +1,5 @@
 Having locks for each variable one common one
 Having recursive works work with pthread_cond_wait()
 should i go for unordered map or stick to lists for ease of use
-
+for what scope should i change handler of SIGUSR1 to do nothing of importance
 how should i check if a thread is sleeping wo forcing studenets to create public values

@@ -31,8 +31,9 @@
   {
     private:
 
-      list<pthread_t> sleeping_threads;
-      pthread_mutex_t list_lock;
+      list<pthread_t> sleeping_threads; // the list of sleeping threads
+      pthread_mutex_t list_lock;        // lock to safely access and modify @sleeping_threads
+      sigset_t user_sig;                // set of only SIGUSR1 to use for sleeping
 
     public:
       ConditionVariable();

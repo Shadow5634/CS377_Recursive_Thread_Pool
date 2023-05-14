@@ -21,6 +21,8 @@ void cond_wait_sleeper(int sigNum)
 
 ConditionVariable::ConditionVariable()
 {
+  sigemptyset(&(this->user_sig));
+  sigaddset(&(this->user_sig), SIGUSR1);
   signal(SIGUSR1, cond_wait_sleeper);
   pthread_mutex_init(&(this->list_lock), NULL);
 }
@@ -56,8 +58,8 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
-  // 3 - put thread to sleep (ensure no locks have been acquired)
-  pause();
+  // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
+  sigwaitinfo(&(this->user_sig), NULL);
 
   // 4 - thread awoken, remove from sleeping list
   pthread_mutex_lock(&(this->list_lock));
