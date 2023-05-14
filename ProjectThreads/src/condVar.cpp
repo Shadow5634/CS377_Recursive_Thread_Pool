@@ -27,6 +27,11 @@ ConditionVariable::~ConditionVariable()
   pthread_mutex_destroy(&(this->list_lock));
 }
 
+bool same_thread(pthread_t& listEntry)
+{
+  return (listEntry == pthread_self());
+}
+
 int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 {
   // might want to have checking to ensure that mutex has been acquired and locked
@@ -39,8 +44,17 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
   // might want to use sigwaitinfo and sigpromask to deal with signal scheduling
   pthread_mutex_unlock(mutex);
+
+  pthread_mutex_lock(&(this->list_lock));
+    this->sleeping_threads.push_front(pthread_self());
+  pthread_mutex_unlock(&(this->list_lock));
+
   pause();
-  // before acquiring lock gain remove yourself from the sleeping_threads array'
+
+  pthread_mutex_lock(&(this->list_lock));
+    this->sleeping_threads.remove_if(same_thread);
+  pthread_mutex_unlock(&(this->list_lock));
+
   pthread_mutex_lock(mutex);
   return 0;
 }
