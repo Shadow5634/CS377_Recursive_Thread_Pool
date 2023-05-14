@@ -184,6 +184,17 @@ int RecursiveLock::recur_mutex_lock()
   return 0;
 }
 
+// returns the #acquisitions of lock currently
+int RecursiveLock::get_acqui_count()
+{
+  return this->info.count;
+}
+
+// returns tid of the thread occupying lock - is 0 if lock is free
+pthread_t RecursiveLock::get_lock_owner()
+{
+  return this->info.currThreadID;
+}
 // THINK ABOUT THE FOLLOWING:
 // when you swtitch between locks for tid and count can a different thread affect any of the globals
 // i.e. read or write the wrong value

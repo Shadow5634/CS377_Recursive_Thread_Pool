@@ -55,6 +55,12 @@
       // non-blocking function that tries to lock a mutex using recursive lock approach
       int recur_mutex_try_lock();
 
+      // gets the #acquisions of lock currently
+      int get_acqui_count();
+
+      // gets the thread currently occupying lock
+      pthread_t get_lock_owner();
+
   };
 
 #endif 
