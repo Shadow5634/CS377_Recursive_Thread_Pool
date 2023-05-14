@@ -10,6 +10,10 @@
 // since you will need to keep track of which threads are sleeping on the condition to wake them up
   // this will require additional condition variables and mutexes
 
+// need to ensure no other signals can interrupt
+// how to check if a thread is sleeping
+// need to figure out how signal can wake up random number of threads
+
 void cond_wait_sleeper(int sigNum)
 {
   cout << "Received SIGUSR1" <<  endl;
@@ -43,18 +47,24 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // might want to prioritize making lock free first to allow more concurrency
 
   // might want to use sigwaitinfo and sigpromask to deal with signal scheduling
+
+  // 1 - unlock mutex
   pthread_mutex_unlock(mutex);
 
+  // 2 - add tid to sleeping list
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
+  // 3 - put thread to sleep (ensure no locks have been acquired)
   pause();
 
+  // 4 - thread awoken, remove from sleeping list
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.remove_if(same_thread);
   pthread_mutex_unlock(&(this->list_lock));
 
+  // 5 - reacquire lock
   pthread_mutex_lock(mutex);
   return 0;
 }
@@ -67,8 +77,7 @@ int ConditionVariable::cond_var_signal()
 
 int ConditionVariable::cond_var_broadcast()
 {
-  // confirm that sleeping_threads[i] is a valid tid - maintained through insertion and deletion from clue
-  // what do you do if no threads are sleeping
+  // list insertion/deletion ensures tid are all valid
   pthread_mutex_lock(&(this->list_lock));
     auto elemItr = this->sleeping_threads.begin();
 
@@ -77,7 +86,7 @@ int ConditionVariable::cond_var_broadcast()
       pthread_kill(*elemItr, SIGUSR1);
       elemItr++;
     }
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->list_lock));
 
   return 0;
 }
