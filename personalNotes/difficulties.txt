@@ -10,3 +10,20 @@ could you ignore all signals (except SIGUSR1) before sleeping and later on switc
 this assumes that if one signal is delivered than all must be
 
 deciding to use sigusr2 as well for testing???
+
+
+* Seems to be the case that sigwaitinfo gets interrupted by other singals as well
+* Seems to be the case that pthread_cond_wait gets interrupted by other signals as well
+* but i want to test that a thread has actually gone to sleep until SIGUSR1 received
+
+* that does not seem possible however
+* instead have a handler for all signals that just sets a global variable to the signal received
+* and keep sigwait until the global variable changes to SIGUSR1
+* but this disregards other important sigkills that should generally not be ignored
+
+/////////////////////////
+    SHORT QUESTIONS
+/////////////////////////
+
+* How to use <.h> for include instead of specifying full relative path using ""
+* Explain the makefile

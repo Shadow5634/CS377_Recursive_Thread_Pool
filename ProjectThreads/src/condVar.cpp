@@ -37,6 +37,7 @@ ConditionVariable::ConditionVariable()
 ConditionVariable::~ConditionVariable()
 {
   signal(SIGUSR1, SIG_DFL);
+  signal(SIGUSR2, SIG_DFL);
   pthread_mutex_destroy(&(this->list_lock));
 }
 
@@ -67,10 +68,15 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
   // block all signals except SIGUSR1
   // do you want to unblock them later on or leave that up to the user of these functions
-  sigset_t full;
+  sigset_t full, usr2;
   sigfillset(&full);
   sigprocmask(SIG_BLOCK, &full, NULL);
+
+  sigemptyset(&usr2);
+  sigaddset(&usr2, SIGUSR2);
+
   sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
+  sigprocmask(SIG_UNBLOCK, &usr2, NULL);
 
   // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
   sigwaitinfo(&(this->user_sig), NULL);

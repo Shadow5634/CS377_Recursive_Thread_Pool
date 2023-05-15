@@ -26,17 +26,18 @@ int main(int argc, char** argv)
   pthread_mutex_init(&l, NULL);
   pthread_cond_init(&cond, NULL);
 
-  pthread_create(arr, NULL, sender, NULL);
-  pthread_create((arr + 1), NULL, receiver, NULL);
-  pthread_join(arr[0], NULL);
-  pthread_join(arr[1], NULL);
-
-  // cv = new ConditionVariable();
-  // CONDVAR TESTING
-  // pthread_create(arr, NULL, condSigSender, NULL);
-  // pthread_create((arr + 1), NULL, condSigReceiver, NULL);
+  // pthread_create(arr, NULL, sender, NULL);
+  // pthread_create((arr + 1), NULL, receiver, NULL);
   // pthread_join(arr[0], NULL);
   // pthread_join(arr[1], NULL);
+
+  // cv = new ConditionVariable();
+
+  // CONDVAR TESTING
+  pthread_create(arr, NULL, condSigSender, NULL);
+  pthread_create((arr + 1), NULL, condSigReceiver, NULL);
+  pthread_join(arr[0], NULL);
+  pthread_join(arr[1], NULL);
   // RECURMUTEX TESTING
   // basicRecurTest();
 
@@ -45,16 +46,17 @@ int main(int argc, char** argv)
 
   cout << "MAIN FINISHEDD" << endl;
   pthread_mutex_destroy(&l);
+  pthread_cond_destroy(&cond);
   return 0;
 }
 
 // THESE TWO METHODS SHOW THAT COND_WAIT GOES TO DEFAULT SIGHANDLER OF THE INCOMING SIGNAL
 void* sender(void* vargp)
 {
-  sleep(4);
+  sleep(2);
   cout << "PASSING SIGUSR2" << endl;
   pthread_kill(arr[1], SIGUSR2);
-  sleep(4);
+  sleep(5);
   cout << "COND SIGNAL" << endl;
   pthread_cond_signal(&cond);
 }
@@ -71,13 +73,13 @@ void* receiver(void* vargp)
 void* condSigSender(void* vargp)
 {
   cout << "Sender starting\n" << endl;
-  sleep(4);
+  sleep(2);
   // cout << "Sender sending broadcast\n" << endl;
   // cv->cond_var_broadcast();
-  cout << "sending random signal" << endl;
+  cout << "sending random signal usr2" << endl;
   pthread_kill(arr[1], SIGUSR2);
 
-  sleep(4);
+  sleep(5);
   cout << "Sender sending broadcast\n" << endl;
   cv->cond_var_broadcast();
   return NULL;
