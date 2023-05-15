@@ -59,8 +59,17 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
+  // block all signals except SIGUSR1
+  // do you want to unblock them later on or leave that up to the user of these functions
+  sigset_t full;
+  sigfillset(&full);
+  sigprocmask(SIG_BLOCK, &full, NULL);
+  sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
+
   // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
   sigwaitinfo(&(this->user_sig), NULL);
+
+  // sigprocmask(SIG_UNBLOCK, &full, NULL);
 
   // 4 - thread awoken, remove from sleeping list
   pthread_mutex_lock(&(this->list_lock));

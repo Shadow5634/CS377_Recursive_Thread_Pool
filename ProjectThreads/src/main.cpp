@@ -25,17 +25,24 @@ int main(int argc, char** argv)
   pthread_create((arr + 1), NULL, condSigReceiver, NULL);
   pthread_join(arr[0], NULL);
   pthread_join(arr[1], NULL);
-
   // basicRecurTest();
 
   delete cv;
+
+  cout << "MAIN FINISHEDD" << endl;
   return 0;
 }
 
 void* condSigSender(void* vargp)
 {
   cout << "Sender starting\n" << endl;
-  sleep(5);
+  sleep(4);
+  // cout << "Sender sending broadcast\n" << endl;
+  // cv->cond_var_broadcast();
+  cout << "sending random signal" << endl;
+  pthread_kill(arr[1], SIGUSR2);
+
+  sleep(4);
   cout << "Sender sending broadcast\n" << endl;
   cv->cond_var_broadcast();
   return NULL;

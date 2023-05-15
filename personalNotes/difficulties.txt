@@ -3,3 +3,8 @@ Having recursive works work with pthread_cond_wait()
 should i go for unordered map or stick to lists for ease of use
 for what scope should i change handler of SIGUSR1 to do nothing of importance
 how should i check if a thread is sleeping wo forcing studenets to create public values
+
+which signals to block and which to not
+when should you unblock them
+could you ignore all signals (except SIGUSR1) before sleeping and later on switch them back to default
+this assumes that if one signal is delivered than all must be
