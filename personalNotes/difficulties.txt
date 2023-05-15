@@ -16,6 +16,7 @@ Intellisense gives wrong suggestion that does not compile - be careful???/
 
 Just assumed that pthread_signal wakes up one thread - the first in the list for O(1) complexity
 Signal dispositions are process wide
+using sigwait instead of pause to more directly get the signal number instead of using handlers
 
 If multiple threads of a process are blocked waiting for the same
        signal(s) in sigwaitinfo() or sigtimedwait(), then exactly one of
