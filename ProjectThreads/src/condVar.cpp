@@ -15,16 +15,22 @@
 // how to check if a thread is sleeping
 // need to figure out how signal can wake up random number of threads
 
-void cond_wait_sleeper(int sigNum)
+void cond_wait_usr1_sleeper(int sigNum)
 {
   cout << "Received SIGUSR1" <<  endl;
+}
+
+void cond_wait_usr2_sleeper(int sigNum)
+{
+  cout << "Received SIGUSR2" <<  endl;
 }
 
 ConditionVariable::ConditionVariable()
 {
   sigemptyset(&(this->user_sig));
   sigaddset(&(this->user_sig), SIGUSR1);
-  signal(SIGUSR1, cond_wait_sleeper);
+  signal(SIGUSR1, cond_wait_usr1_sleeper);
+  signal(SIGUSR2, cond_wait_usr2_sleeper);
   pthread_mutex_init(&(this->list_lock), NULL);
 }
 

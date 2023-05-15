@@ -8,3 +8,5 @@ which signals to block and which to not
 when should you unblock them
 could you ignore all signals (except SIGUSR1) before sleeping and later on switch them back to default
 this assumes that if one signal is delivered than all must be
+
+deciding to use sigusr2 as well for testing???
