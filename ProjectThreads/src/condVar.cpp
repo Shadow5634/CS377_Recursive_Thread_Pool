@@ -1,5 +1,4 @@
-#include "../include/condVar.h"
-// #include <condvar.h>
+#include "condVar.h"
 
 // 1 - pause, 2 - nanosleep, 3 - sched_yield
 // might want to check out sigwaitinfo and sigprocmask
@@ -15,29 +14,40 @@
 // how to check if a thread is sleeping
 // need to figure out how signal can wake up random number of threads
 
-void cond_wait_usr1_sleeper(int sigNum)
+void cond_wait_usr_sleeper(int sigNum)
 {
-  cout << "Received SIGUSR1" <<  endl;
-}
+  if (sigNum == SIGUSR1)
+  {
+    cout << "Handler called. Received SIGUSR1" <<  endl;
+  }
+  else if (sigNum == SIGUSR2)
+  {
+    cout << "Handler called. Received SIGUSR1" <<  endl;
+  }
 
-void cond_wait_usr2_sleeper(int sigNum)
-{
-  cout << "Received SIGUSR2" <<  endl;
 }
 
 ConditionVariable::ConditionVariable()
 {
   sigemptyset(&(this->user_sig));
   sigaddset(&(this->user_sig), SIGUSR1);
-  signal(SIGUSR1, cond_wait_usr1_sleeper);
-  signal(SIGUSR2, cond_wait_usr2_sleeper);
+
+  struct sigaction handlers;
+  handlers.sa_handler = cond_wait_usr_sleeper;
+  // handlers.__sigaction_handler - GIVES COMPILE TIME ERROR
+  sigaction(SIGUSR1, &handlers, NULL);
+  sigaction(SIGUSR2, &handlers, NULL);
+
   pthread_mutex_init(&(this->list_lock), NULL);
 }
 
 ConditionVariable::~ConditionVariable()
 {
-  signal(SIGUSR1, SIG_DFL);
-  signal(SIGUSR2, SIG_DFL);
+  struct sigaction handlers;
+  handlers.sa_handler = SIG_DFL;
+  sigaction(SIGUSR1, &handlers, NULL);
+  sigaction(SIGUSR2, &handlers, NULL);
+
   pthread_mutex_destroy(&(this->list_lock));
 }
 
@@ -95,8 +105,21 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
 int ConditionVariable::cond_var_signal()
 {
-  // how do you ensure that a random #threads >= 1 could be woken up
-  return 0;
+  // return 0 - no threads sleeping (no signal sent)
+  // return 1 - atleast one thread was sleeping (one signal sent)
+  int res = 0;
+
+  pthread_mutex_lock(&(this->list_lock));
+
+    if(this->sleeping_threads.empty() == false)
+    {
+      res = 1;
+      pthread_kill(this->sleeping_threads.front(), SIGUSR1);
+    }
+
+  pthread_mutex_unlock(&(this->list_lock));
+
+  return res;
 }
 
 int ConditionVariable::cond_var_broadcast()
@@ -107,7 +130,6 @@ int ConditionVariable::cond_var_broadcast()
 
   int res = 0;
 
-  // list insertion/deletion ensures tid are all valid
   pthread_mutex_lock(&(this->list_lock));
     auto elemItr = this->sleeping_threads.begin();
 

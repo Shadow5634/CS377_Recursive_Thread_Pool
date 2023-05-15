@@ -11,6 +11,18 @@ this assumes that if one signal is delivered than all must be
 
 deciding to use sigusr2 as well for testing???
 
+Had to switch to more portable sigaction since its the recommended approach
+Intellisense gives wrong suggestion that does not compile - be careful???/
+
+Just assumed that pthread_signal wakes up one thread - the first in the list for O(1) complexity
+Signal dispositions are process wide
+
+If multiple threads of a process are blocked waiting for the same
+       signal(s) in sigwaitinfo() or sigtimedwait(), then exactly one of
+       the threads will actually receive the signal if it becomes
+       pending for the process as a whole; which of the threads receives
+       the signal is indeterminate
+
 
 * Seems to be the case that sigwaitinfo gets interrupted by other singals as well
 * Seems to be the case that pthread_cond_wait gets interrupted by other signals as well
@@ -19,11 +31,15 @@ deciding to use sigusr2 as well for testing???
 * that does not seem possible however
 * instead have a handler for all signals that just sets a global variable to the signal received
 * and keep sigwait until the global variable changes to SIGUSR1
-* but this disregards other important sigkills that should generally not be ignored
+* but this disregards other important singals that should generally not be ignored
+
+****sigwaitinfo does not execute the signal handler****
 
 /////////////////////////
     SHORT QUESTIONS
 /////////////////////////
 
+* difference between signal and broadcast
 * How to use <.h> for include instead of specifying full relative path using ""
 * Explain the makefile
+* the helpers - should i make them part of the class or not

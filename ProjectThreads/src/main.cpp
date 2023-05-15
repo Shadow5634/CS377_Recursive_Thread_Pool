@@ -1,5 +1,5 @@
-#include "../include/recurMutex.h"
-#include "../include/condVar.h"
+#include "recurMutex.h"
+#include "condVar.h"
 
 using namespace std;
 
@@ -73,11 +73,10 @@ void* receiver(void* vargp)
 void* condSigSender(void* vargp)
 {
   cout << "Sender starting\n" << endl;
-  sleep(2);
   // cout << "Sender sending broadcast\n" << endl;
   // cv->cond_var_broadcast();
-  cout << "sending random signal usr2" << endl;
-  pthread_kill(arr[1], SIGUSR2);
+  // cout << "sending random signal usr2" << endl;
+  // pthread_kill(arr[1], SIGUSR2);
 
   sleep(5);
   cout << "Sender sending broadcast\n" << endl;

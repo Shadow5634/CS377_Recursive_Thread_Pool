@@ -1,6 +1,4 @@
-#include "../include/recurMutex.h"
-// try to figure out how to not use relative paths
-// #include <recurMutex.h>
+#include "recurMutex.h"
 
 using namespace std;
 
