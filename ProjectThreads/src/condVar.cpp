@@ -71,7 +71,11 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // 1 - unlock mutex
   pthread_mutex_unlock(mutex);
 
-  // 2 - add tid to sleeping list
+  sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
+
+  // 2 - add tid to sleeping list (it is only after this that SIGUSR1 should be sent to it)
+  // this is ensured by how broadcase and signal are implemented
+  // this meth should ensure that CURRENT_TID not in @sleeping_threads PREVENT DUPLICATES
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
@@ -80,10 +84,15 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // sigwait/sigwaitinfo for suspensding execution of THREAD - returns signal number
   // sigprocmask to block/unblock singals for THREAD
 
+  // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
+  sigwaitinfo(&(this->user_sig), NULL);
+
   // 4 - thread awoken, remove from sleeping list
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.remove_if(same_thread);
   pthread_mutex_unlock(&(this->list_lock));
+
+  sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
 
   // 5 - reacquire lock
   pthread_mutex_lock(mutex);
@@ -95,16 +104,12 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 // sigset_t full, usr2;
 // sigfillset(&full);
 // sigprocmask(SIG_BLOCK, &full, NULL);
-
 // sigemptyset(&usr2);
 // sigaddset(&usr2, SIGUSR2);
-
 // sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
 // sigprocmask(SIG_UNBLOCK, &usr2, NULL);
-
 // // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
 // sigwaitinfo(&(this->user_sig), NULL);
-
 // // sigprocmask(SIG_UNBLOCK, &full, NULL);
 
 int ConditionVariable::cond_var_signal()

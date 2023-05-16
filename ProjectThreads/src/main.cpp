@@ -15,6 +15,8 @@ int main(int argc, char** argv)
   void basicRecurTest();
   void* condSigReceiver(void* vargp);
   void* condSigSender(void* vargp);
+  void* condSigReceiverACT(void* vargp);
+  void* condSigSenderACT(void* vargp);
   void* sender(void* vargp);
   void* receiver(void* vargp);
 
@@ -32,6 +34,11 @@ int main(int argc, char** argv)
   // pthread_join(arr[1], NULL);
 
   // cv = new ConditionVariable();
+
+  // pthread_create(arr, NULL, condSigSenderACT, NULL);
+  // pthread_create((arr + 1), NULL, condSigReceiverACT, NULL);
+  // pthread_join(arr[0], NULL);
+  // pthread_join(arr[1], NULL);
 
   // CONDVAR TESTING
   pthread_create(arr, NULL, condSigSender, NULL);
@@ -59,6 +66,8 @@ void* sender(void* vargp)
   sleep(5);
   cout << "COND SIGNAL" << endl;
   pthread_cond_signal(&cond);
+
+  return NULL;
 }
 
 void* receiver(void* vargp)
@@ -68,6 +77,24 @@ void* receiver(void* vargp)
   pthread_mutex_unlock(&l);
 
   cout << "RECEIVER WOKEN UP" << endl;
+  return NULL;
+}
+
+void* condSigSenderACT(void* vargp)
+{
+  cout << "Sender sending broadcast\n" << endl;
+  cv->cond_var_broadcast();
+  return NULL;
+}
+
+void* condSigReceiverACT(void* vargp)
+{
+  cout << "Receiver cond waiting\n" << endl;
+  pthread_mutex_lock(&l);
+    cv->cond_var_wait(&l);
+  pthread_mutex_unlock(&l);
+  cout << "Receiver awoken from cond waiting\n" << endl;
+  return NULL;
 }
 
 void* condSigSender(void* vargp)
@@ -86,11 +113,11 @@ void* condSigSender(void* vargp)
 
 void* condSigReceiver(void* vargp)
 {
-  cout << "Receiver going to sleep\n" << endl;
+  cout << "Receiver cond waiting\n" << endl;
   pthread_mutex_lock(&l);
     cv->cond_var_wait(&l);
   pthread_mutex_unlock(&l);
-  cout << "Receiver awoken\n" << endl;
+  cout << "Receiver awoken from cond\n" << endl;
   return NULL;
 }
 
