@@ -18,7 +18,7 @@ Just assumed that pthread_signal wakes up one thread - the first in the list for
 Signal dispositions are process wide
 using sigwait instead of pause to more directly get the signal number instead of using handlers
 how do i ensure that singal that is sent through signal/broadcast functions does not get missed
-cant seem to check if current thread holds the lock (need a wrapper)
+cant seem to check if current thread holds the lock (need a wrapper) [cond_var_wait]
 
 If multiple threads of a process are blocked waiting for the same
        signal(s) in sigwaitinfo() or sigtimedwait(), then exactly one of
@@ -39,15 +39,21 @@ If multiple threads of a process are blocked waiting for the same
 ****sigwaitinfo does not execute the signal handler****
 
 /////////////////////////
-    SHORT QUESTIONS
-/////////////////////////
-
-* Explain the makefile
-
-/////////////////////////
      QUESTIONS
 /////////////////////////
 
 * Difference between signal and broadcast and how do i choose between the two
-* How should I go about deciding whether helpers should be part of class or not (same_thread and signal handlers)
+* How should I go about deciding whether helpers should be part of class (same_thread, signal handlers)
 * How should I use gdb for threaded debugging
+
+* Explain man page of pthread_cond_wait
+* is this telling me to block first and then release the lock??
+These functions atomically release mutex and cause the calling
+thread to block on the condition variable cond; atomically here
+means ``atomically with respect to access by another thread to
+the mutex and then the condition variable''. That is, if another
+thread is able to acquire the mutex after the about-to-block
+thread has released it, then a subsequent call to
+pthread_cond_broadcast() or pthread_cond_signal() in that thread
+shall behave as if it were issued after the about-to-block thread
+has blocked.

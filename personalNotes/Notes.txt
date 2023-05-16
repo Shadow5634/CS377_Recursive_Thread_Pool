@@ -8,3 +8,16 @@
 cond wait working with recurnotes
 change into classes to make it possible to create multiple of them
 encase tid and count into one structure and one lock for the entire structure
+
+// ANSWER START
+
+// NOTE:
+// i have used two different mutex for tid and count
+// this only benefits unlock however since thats the only place the two are not read togher
+// both locking functions have to consider count irrespective of tid mathcing or not
+
+// it might be possible to use @currThreadID = -1 to signal that lock is free to be acquired
+// in this case it acts as the mutex to be utilized for condition variables
+
+// it does not seem to be the case but think about whether these functions must be atomic
+// ANSWER END

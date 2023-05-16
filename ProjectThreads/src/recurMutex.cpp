@@ -15,23 +15,6 @@ using namespace std;
   // after it has the first time
   // for globals you create think about how multiple threads accessing affects it
 
-// ANSWER START
-
-// NOTE:
-// i have used two different mutex for tid and count
-// this only benefits unlock however since thats the only place the two are not read togher
-// both locking functions have to consider count irrespective of tid mathcing or not
-// in the case of same tid, just increment ctr
-// in case of diff tid check count to see if can be acquired
-
-// it might be possible to use @currThreadID = -1 to signal that lock is free to be acquired
-// in this case it acts as the mutex to be utilized for condition variables
-
-// it does not seem to be the case but think about whether these functions must be atomic
-
-// MIGHT WANT TO CHECK THAT INIT AND DESTROY CALLED ONLY ONCE
-// ANSWER END
-
 // initialize any global variables that you may have declared
 RecursiveLock::RecursiveLock()
 {
@@ -52,24 +35,20 @@ RecursiveLock::~RecursiveLock()
 int RecursiveLock::recur_mutex_try_lock()
 {
   // 1 - check to see if same or different thread is trying to acquire lock
-  // 2.1 - if different thread tries to lock but cannot then return -1 to signal unable to acquire locl
+  // 2.1 - if different thread tries to lock but cannot then return -1 to signal unable to acquire lock
   // 2.2 - if same thread tries to lock then let it 'lock' and store info that thread has acquired lock n+1 times
 
   // -1 - lock unable to acquire
-  // 0 - lock acquired by same thread
+  // 0 - lock reacquired by same thread
   // 1 - lock acquired by different thread
 
   // note that unlike lock, both situations immediately return from the function
-  // later on (and immediate for 2.2) it ill acquire lock and return
 
   // =================================================================================
   // =================================================================================
   // ANSWER FOLLOWS:
   // =================================================================================
   // =================================================================================
-
-  // should i read @currThreadID and connected together or separate
-  // in another words: do i need two separate locks or is one fine
 
   int res;
 
@@ -103,9 +82,8 @@ int RecursiveLock::recur_mutex_try_lock()
 int RecursiveLock::recur_mutex_unlock()
 {
   // 1 - check to see if the thread trying to unlock even has the lock (note that there are 2 parts to this)
-  // 2.1 - if it does not have the lock return error
+  // 2.1 - if it does not have the lock return -1
   // 2.2 - if it does have the lock, release it and store infor that thread acquired lock n-1 time
-
   // note that this is also a non-blocking call
 
   // 0 - lock unlocked by 1 level, not fully
@@ -124,7 +102,6 @@ int RecursiveLock::recur_mutex_unlock()
 
   pthread_mutex_lock(&(this->info_lock));
     // lock already free or trying to free a lock you have not acquired
-    // will it be a good safety to have broadcast or signal here as well? 
     if ((this->info.currThreadID == 0) || (this->info.currThreadID != pthread_self()))
     {
       pthread_mutex_unlock(&(this->info_lock));
@@ -155,9 +132,7 @@ int RecursiveLock::recur_mutex_lock()
   // 1 - check to see if same or different thread is trying to acquire lock
   // 2.1 - if different thread tries to lock then put it waiting on a condition variable
   // 2.2 - if same thread tries to lock then let it 'lock' and store info that thread has acquired lock n+1 times
-
-  // note that in 2.1 thread goes to sleep/blocked state and function does not return immediately
-  // later on (and immediate for 2.2) it ill acquire lock and return
+  // note that this is a blocking call 
 
   // =================================================================================
   // =================================================================================
@@ -193,8 +168,3 @@ pthread_t RecursiveLock::get_lock_owner()
 {
   return this->info.currThreadID;
 }
-// THINK ABOUT THE FOLLOWING:
-// when you swtitch between locks for tid and count can a different thread affect any of the globals
-// i.e. read or write the wrong value
-// check that the same mutex as init is passed
-// need to add checks for that
