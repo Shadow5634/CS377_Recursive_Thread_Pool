@@ -37,7 +37,7 @@ $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 $(ODIR)/%.o: $(TDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-# 5 - forces formation of both lock_app and lock_test (WHY DOES THE POSITION MATER)
+# 5 - FIRST TARGET: forces formation of both lock_app and lock_test
 all: $(APPBIN) $(TESTBIN)
 
 # 3 - main executable

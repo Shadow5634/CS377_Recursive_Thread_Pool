@@ -18,6 +18,7 @@ Just assumed that pthread_signal wakes up one thread - the first in the list for
 Signal dispositions are process wide
 using sigwait instead of pause to more directly get the signal number instead of using handlers
 how do i ensure that singal that is sent through signal/broadcast functions does not get missed
+cant seem to check if current thread holds the lock (need a wrapper)
 
 If multiple threads of a process are blocked waiting for the same
        signal(s) in sigwaitinfo() or sigtimedwait(), then exactly one of
@@ -41,14 +42,12 @@ If multiple threads of a process are blocked waiting for the same
     SHORT QUESTIONS
 /////////////////////////
 
-* difference between signal and broadcast
-* How to use <.h> for include instead of specifying full relative path using ""
 * Explain the makefile
-* the helpers - should i make them part of the class or not
-
 
 /////////////////////////
      QUESTIONS
 /////////////////////////
 
 * Difference between signal and broadcast and how do i choose between the two
+* How should I go about deciding whether helpers should be part of class or not (same_thread and signal handlers)
+* How should I use gdb for threaded debugging
