@@ -135,8 +135,7 @@ int RecursiveLock::recur_mutex_unlock()
     if (--(this->info.count) == 0)
     {
       this->info.currThreadID = 0;
-      pthread_cond_broadcast(&(this->sleeping_cond)); 
-      // signal should suffice, threads are all same if not acquired unlike malloc where diff threads asking for different memory
+      pthread_cond_signal(&(this->sleeping_cond));
       res = 1;
     }
     // recursive lock released one by level

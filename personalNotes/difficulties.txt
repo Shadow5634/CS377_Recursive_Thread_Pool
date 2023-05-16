@@ -45,3 +45,10 @@ If multiple threads of a process are blocked waiting for the same
 * How to use <.h> for include instead of specifying full relative path using ""
 * Explain the makefile
 * the helpers - should i make them part of the class or not
+
+
+/////////////////////////
+     QUESTIONS
+/////////////////////////
+
+* Difference between signal and broadcast and how do i choose between the two
