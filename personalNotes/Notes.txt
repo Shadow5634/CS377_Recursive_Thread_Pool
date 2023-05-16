@@ -9,6 +9,19 @@ cond wait working with recurnotes
 change into classes to make it possible to create multiple of them
 encase tid and count into one structure and one lock for the entire structure
 
+// ASSUMPTIONS:
+// you can utilize all the POSIX thread functions
+// note however that you can't use them to create recursive mutexes for you
+// you must use them to create non-recursive mutexes and proceed to implement behaviour
+// characteristic of recursive locks
+
+// feel free to create as many global variables as you like
+// hints
+  // you need to be able distinguish between thread that has lock and those that don't
+  // you need to implement a mechanism to keep track of how many times the thread has acquired the lock
+  // after it has the first time
+  // for globals you create think about how multiple threads accessing affects it
+
 // ANSWER START
 
 // NOTE:

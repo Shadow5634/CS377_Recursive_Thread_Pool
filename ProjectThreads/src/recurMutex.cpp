@@ -2,48 +2,47 @@
 
 using namespace std;
 
-// ASSUMPTIONS:
-// you can utilize all the POSIX thread functions
-// note however that you can't use them to create recursive mutexes for you
-// you must use them to create non-recursive mutexes and proceed to implement behaviour
-// characteristic of recursive locks
-
-// feel free to create as many global variables as you like
-// hints
-  // you need to be able distinguish between thread that has lock and those that don't
-  // you need to implement a mechanism to keep track of how many times the thread has acquired the lock
-  // after it has the first time
-  // for globals you create think about how multiple threads accessing affects it
-
-// initialize any global variables that you may have declared
+/**
+ * constructor to initialize class level variables
+*/
 RecursiveLock::RecursiveLock()
 {
-  (this->info).currThreadID = 0;
-  (this->info).count = 0;
-  pthread_mutex_init(&(this->info_lock), NULL);
-  pthread_cond_init(&(this->sleeping_cond), NULL);
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  (this->info).currThreadID = 0;                    // initially no thread has acquired lock
+  (this->info).count = 0;                           // initially no thread has acquired lock
+  pthread_mutex_init(&(this->info_lock), NULL);     // intitialize mutex
+  pthread_cond_init(&(this->sleeping_cond), NULL);  // intitialize condition variable
 }
 
-// free up memory, destroy locks, etc
+/**
+ * free up memory, destroy locks, etc
+*/
 RecursiveLock::~RecursiveLock()
 {
-  pthread_mutex_destroy(&(this->info_lock));
-  pthread_cond_destroy(&(this->sleeping_cond));
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  pthread_mutex_destroy(&(this->info_lock));    // free resources for mutex
+  pthread_cond_destroy(&(this->sleeping_cond)); // free resources for condition variable
 }
 
-// tries to unlock a mutex using recursive lock approach
+/**
+ * tries to lock a mutex using recursive lock approach
+ * 
+ * return -1: lock unable to be acquired
+ * return 0:  lock has been succesfully reacquired (calling thread is current owner)
+ * return 1:  lock has been succesfully acquired (calling thread is new owner)
+*/
 int RecursiveLock::recur_mutex_try_lock()
 {
-  // 1 - check to see if same or different thread is trying to acquire lock
-  // 2.1 - if different thread tries to lock but cannot then return -1 to signal unable to acquire lock
-  // 2.2 - if same thread tries to lock then let it 'lock' and store info that thread has acquired lock n+1 times
-
-  // -1 - lock unable to acquire
-  // 0 - lock reacquired by same thread
-  // 1 - lock acquired by different thread
-
-  // note that unlike lock, both situations immediately return from the function
-
   // =================================================================================
   // =================================================================================
   // ANSWER FOLLOWS:
@@ -78,25 +77,20 @@ int RecursiveLock::recur_mutex_try_lock()
   return res;
 }
 
-// tries to unlock a mutex using recursive lock approach
+/**
+ * tries to unlock a mutex using recursive lock approach
+ * 
+ * return -1: lock not acquired by calling thread
+ * return 0:  lock has been succesfully unlocked by 1 layer
+ * return 1:  lock has been succesfully unlocked fully i.e. open to acquisition by other threads
+*/
 int RecursiveLock::recur_mutex_unlock()
 {
-  // 1 - check to see if the thread trying to unlock even has the lock (note that there are 2 parts to this)
-  // 2.1 - if it does not have the lock return -1
-  // 2.2 - if it does have the lock, release it and store infor that thread acquired lock n-1 time
-  // note that this is also a non-blocking call
-
-  // 0 - lock unlocked by 1 level, not fully
-  // 1 - were able to unlock all the way
-  // -1 - could not unlock - does not possess lock
-
   // =================================================================================
   // =================================================================================
   // ANSWER FOLLOWS:
   // =================================================================================
   // =================================================================================
-
-  // MISSING: releasing threads from sleeping if lock released all the way
 
   int res;
 
