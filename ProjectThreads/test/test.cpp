@@ -136,13 +136,43 @@ TEST(RecurMutex, basicTryLockTest)
 // =================================================================================
 // =================================================================================
 
+typedef struct encompass 
+{
+  ConditionVariable* condVar;
+  pthread_mutex_t* mutex;
+} encompass;
+
+void* condHelper(void* vargp)
+{
+  encompass* condStruct = (encompass*) vargp;
+  ConditionVariable* condVar = condStruct->condVar;
+  pthread_mutex_t* mutex = condStruct->mutex;
+
+  pthread_mutex_lock(mutex);
+    condVar->cond_var_wait(mutex);
+  pthread_mutex_unlock(mutex);
+}
+
+TEST(CondVar, basicWaitTest)
+{
+  ConditionVariable* condVar = new ConditionVariable();
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+
+  encompass condStruct;
+  condStruct.condVar = condVar;
+  condStruct.mutex = &mutex;
+
+  delete condVar;
+}
+
 TEST(CondVar, correctIntializations)
 {
   ConditionVariable* condVar = new ConditionVariable();
 
   EXPECT_EQ(condVar->sleepingThreadCount(), 0);
   EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
-  
+
   delete condVar;
 }
 
