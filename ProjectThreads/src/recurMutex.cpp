@@ -20,7 +20,7 @@ RecursiveLock::RecursiveLock()
 }
 
 /**
- * free up memory, destroy locks, etc
+ * deconstructor to free up memory, destroy locks, etc
 */
 RecursiveLock::~RecursiveLock()
 {
@@ -120,27 +120,28 @@ int RecursiveLock::recur_mutex_unlock()
   return res;
 }
 
-// tries to lock a mutex using recursive lock approach
+/**
+ * locks a mutex using recursive lock approach
+ * 
+ * return 0:  lock has been succesfully reacquired (calling thread is current owner)
+ * return 1:  lock has been succesfully acquired (calling thread is new owner)
+*/
 int RecursiveLock::recur_mutex_lock()
 {
-  // 1 - check to see if same or different thread is trying to acquire lock
-  // 2.1 - if different thread tries to lock then put it waiting on a condition variable
-  // 2.2 - if same thread tries to lock then let it 'lock' and store info that thread has acquired lock n+1 times
-  // note that this is a blocking call 
-
   // =================================================================================
   // =================================================================================
   // ANSWER FOLLOWS:
   // =================================================================================
   // =================================================================================
+  int res = 0;
 
   pthread_mutex_lock(&(this->info_lock));
     // lock has been acquired by a different thread   
     // infinitely wait until you can assume control
     while ((this->info.currThreadID != 0) && (this->info.currThreadID != pthread_self()))
     {
-      // put to sleep
       pthread_cond_wait(&(this->sleeping_cond), &(this->info_lock));
+      res = 1;
     }
 
     // assume control and when  made the owner, increment count:
@@ -148,17 +149,42 @@ int RecursiveLock::recur_mutex_lock()
     this->info.count++;
   pthread_mutex_unlock(&(this->info_lock));
 
-  return 0;
+  return res;
 }
 
-// returns the #acquisitions of lock currently
+/**
+ * returns the #acquisitions of lock currently
+*/
 int RecursiveLock::get_acqui_count()
 {
-  return this->info.count;
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  pthread_mutex_lock(&(this->info_lock));
+    int res = this->info.count;
+  pthread_mutex_unlock(&(this->info_lock));
+
+  return res;
 }
 
-// returns tid of the thread occupying lock - is 0 if lock is free
+/**
+ * returns the thread id of the thread that has current acquired the recursive lock
+ * return 0 if the lock is free
+*/
 pthread_t RecursiveLock::get_lock_owner()
 {
-  return this->info.currThreadID;
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  pthread_mutex_lock(&(this->info_lock));
+    int res = this->info.currThreadID;
+  pthread_mutex_unlock(&(this->info_lock));
+
+  return res;
 }

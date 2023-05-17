@@ -51,7 +51,7 @@
       ~ConditionVariable();
 
       // blocking function that suspends execution until woken up through signal/broadcast
-      int cond_var_wait(pthread_mutex_t* mutex);
+      void cond_var_wait(pthread_mutex_t* mutex);
 
       // send a singal (SIGUSR1) to any one of the sleeping threads to be woken up
       int cond_var_signal();

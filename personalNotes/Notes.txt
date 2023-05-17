@@ -22,6 +22,19 @@ encase tid and count into one structure and one lock for the entire structure
   // after it has the first time
   // for globals you create think about how multiple threads accessing affects it
 
+  // // block all signals except SIGUSR1
+// // do you want to unblock them later on or leave that up to the user of these functions
+// sigset_t full, usr2;
+// sigfillset(&full);
+// sigprocmask(SIG_BLOCK, &full, NULL);
+// sigemptyset(&usr2);
+// sigaddset(&usr2, SIGUSR2);
+// sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
+// sigprocmask(SIG_UNBLOCK, &usr2, NULL);
+// // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
+// sigwaitinfo(&(this->user_sig), NULL);
+// // sigprocmask(SIG_UNBLOCK, &full, NULL);
+
 // ANSWER START
 
 // NOTE:

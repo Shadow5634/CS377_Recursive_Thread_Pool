@@ -1,20 +1,31 @@
 #include "condVar.h"
 
-void cond_wait_usr_sleeper(int sigNum)
-{
-  if (sigNum == SIGUSR1)
+// ### MY IMPLEMENTATION START ###
+  void cond_wait_usr_sleeper(int sigNum)
   {
-    cout << "Handler called. Received SIGUSR1" <<  endl;
-  }
-  else if (sigNum == SIGUSR2)
-  {
-    cout << "Handler called. Received SIGUSR1" <<  endl;
-  }
+    if (sigNum == SIGUSR1)
+    {
+      cout << "Handler called. Received SIGUSR1" <<  endl;
+    }
+    else if (sigNum == SIGUSR2)
+    {
+      cout << "Handler called. Received SIGUSR1" <<  endl;
+    }
 
-}
+  }
+// ### MY IMPLEMENTATION END ###
 
+/**
+ * constructor to initialize class level variables
+*/
 ConditionVariable::ConditionVariable()
 {
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
   sigemptyset(&(this->user_sig));
   sigaddset(&(this->user_sig), SIGUSR1);
 
@@ -27,8 +38,17 @@ ConditionVariable::ConditionVariable()
   pthread_mutex_init(&(this->list_lock), NULL);
 }
 
+/**
+ * deconstructor to free up memory, destroy locks, etc
+*/
 ConditionVariable::~ConditionVariable()
 {
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
   struct sigaction handlers;
   handlers.sa_handler = SIG_DFL;
   sigaction(SIGUSR1, &handlers, NULL);
@@ -37,22 +57,24 @@ ConditionVariable::~ConditionVariable()
   pthread_mutex_destroy(&(this->list_lock));
 }
 
-bool same_thread(pthread_t& listEntry)
+// ### MY IMPLEMENTATION START ###
+  bool same_thread(pthread_t& listEntry)
+  {
+    return (listEntry == pthread_self());
+  }
+// ### MY IMPLEMENTATION START ###
+
+/**
+ * puts the caller thread to sleep/suspends execution
+ * process wakes up/resumes execution on receiving signal (SIGUSR1)
+*/
+void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 {
-  return (listEntry == pthread_self());
-}
-
-int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
-{
-  // might want to have checking to ensure that mutex has been acquired and locked
-  // put to sleep using pause and then reacquire lock before returning
-
-  // do you want to add to sleeping array before or after releasing lock
-  // do you want to remove from sleeping array before or after releasing lock - BEFORE
-  // The above two should not matter since mutex does not relate to any globals in this class
-  // might want to prioritize making lock free first to allow more concurrency
-
-  // might want to use sigwaitinfo and sigpromask to deal with signal scheduling
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
 
   // 1 - unlock mutex
   pthread_mutex_unlock(mutex);
@@ -82,13 +104,21 @@ int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
   // 5 - reacquire lock
   pthread_mutex_lock(mutex);
-  return 0;
 }
 
+/**
+ * sends wake up signal to any one of the sleeping threads (if one present)
+ * return 0 if no signal (SIGUSR1) sent
+ * return 1 if singal (SIGUSR1) was sent
+*/
 int ConditionVariable::cond_var_signal()
 {
-  // return 0 - no threads sleeping (no signal sent)
-  // return 1 - atleast one thread was sleeping (one signal sent)
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
   int res = 0;
 
   pthread_mutex_lock(&(this->list_lock));
@@ -104,11 +134,18 @@ int ConditionVariable::cond_var_signal()
   return res;
 }
 
+/**
+ * sends wake up signal to all of the sleeping threads (if any present)
+ * return 0 if no signal (SIGUSR1) sent
+ * return 1 if singals (SIGUSR1) were sent
+*/
 int ConditionVariable::cond_var_broadcast()
 {
-
-  // return 1 - threads were sleeping
-  // return 0 - no threads sleeping
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
 
   int res = 0;
 
@@ -125,16 +162,3 @@ int ConditionVariable::cond_var_broadcast()
 
   return res;
 }
-
-// // block all signals except SIGUSR1
-// // do you want to unblock them later on or leave that up to the user of these functions
-// sigset_t full, usr2;
-// sigfillset(&full);
-// sigprocmask(SIG_BLOCK, &full, NULL);
-// sigemptyset(&usr2);
-// sigaddset(&usr2, SIGUSR2);
-// sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
-// sigprocmask(SIG_UNBLOCK, &usr2, NULL);
-// // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
-// sigwaitinfo(&(this->user_sig), NULL);
-// // sigprocmask(SIG_UNBLOCK, &full, NULL);
