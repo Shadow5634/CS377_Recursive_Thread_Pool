@@ -87,5 +87,5 @@ Note that it is not neccessary that the calling thread is the owner of the recur
 Note that it is not neccessary that the calling thread is the owner of the recursive mutex
 
 Note: Mutexes and condition variables without any special attributes are the only
-synchronization primitives permitted. Make sure that you do not use cpp lock/condition 
+synchronization primitives permitted. Make sure that you do *not* use cpp lock/condition 
 variables classes such as recursive_mutex.
