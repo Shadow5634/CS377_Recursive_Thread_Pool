@@ -49,7 +49,7 @@ TEST(RecurMutex, basicUnlockTest)
   delete rlock;
 }
 
-TEST(RecurMutex, computesBasicFactorial)
+TEST(RecurMutex, computesFactorial)
 {
   int recursiveMutexFact(int num, RecursiveLock* rlock);
 
@@ -151,19 +151,8 @@ void* condHelper(void* vargp)
   pthread_mutex_lock(mutex);
     condVar->cond_var_wait(mutex);
   pthread_mutex_unlock(mutex);
-}
 
-TEST(CondVar, basicWaitTest)
-{
-  ConditionVariable* condVar = new ConditionVariable();
-  pthread_mutex_t mutex;
-  pthread_mutex_init(&mutex, NULL);
-
-  encompass condStruct;
-  condStruct.condVar = condVar;
-  condStruct.mutex = &mutex;
-
-  delete condVar;
+  return NULL;
 }
 
 TEST(CondVar, correctIntializations)
@@ -172,6 +161,29 @@ TEST(CondVar, correctIntializations)
 
   EXPECT_EQ(condVar->sleepingThreadCount(), 0);
   EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
+
+  delete condVar;
+}
+
+TEST(CondVar, basicWaitTest)
+{
+  void* condHelper(void* vargp);
+
+  ConditionVariable* condVar = new ConditionVariable();
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+
+  encompass condStruct;
+  condStruct.condVar = condVar;
+  condStruct.mutex = &mutex;
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, condHelper, (void*) &condStruct);
+  usleep(1); // enough to force a context switch to the created thread
+  int val = condVar->cond_var_signal();
+  EXPECT_EQ(val, 1);
+
+  pthread_join(thread, NULL);
 
   delete condVar;
 }
