@@ -24,6 +24,13 @@ int recursiveMutexFact(int num, RecursiveLock* rlock)
   return val;
 }
 
+void* tryLockHelper(void* vargp)
+{
+  RecursiveLock* rlock = (RecursiveLock*) vargp;
+  EXPECT_EQ(rlock->recur_mutex_try_lock(), -1);
+  return NULL;
+}
+
 TEST(RecurMutex, correctIntializations)
 {
   RecursiveLock* rlock = new RecursiveLock();
@@ -106,6 +113,21 @@ TEST(RecurMutex, correctCountAndOwnerForLock)
   EXPECT_EQ(rlock->get_acqui_count(), 0);
   EXPECT_EQ(rlock->get_lock_owner(), 0);
 
+  delete rlock;
+}
+
+TEST(RecurMutex, basicTryLockTest)
+{
+  void* tryLockHelper(void* vargp);
+
+  RecursiveLock* rlock = new RecursiveLock();
+  rlock->recur_mutex_lock();
+
+  pthread_t fail;
+  pthread_create(&fail, NULL, tryLockHelper, (void*) rlock);
+  pthread_join(fail, NULL);
+
+  rlock->recur_mutex_unlock();
   delete rlock;
 }
 
