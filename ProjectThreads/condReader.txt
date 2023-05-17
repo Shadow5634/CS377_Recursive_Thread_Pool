@@ -1,0 +1,62 @@
+CONDITIONAL VARIABLES
+
+Note: Lock and mutex are used interchangeably here to mean mutex. We are not discussing
+semaphores here in any capcity.
+Note: This section should be read after the documentation for Recursive mutexes.
+
+1] Recursive Lock implementation dependencies
+You would have noticed that we used condition variables to implement the blocking 
+mechanism for recursive mutexes. We already knew what a default mutex implementation 
+looks like which made using it justified to implement recursive locks. However, this may
+not be the case for condition variables. What we need to now show that condition variables
+can be implemented without using recursive mutexes in order to avoid circular dependencies.
+This is exactly what this section of the project relates to.
+
+2] Condition variables
+As we have looked at in class condition variables come into play when we wish to
+have some ordering of threads depending on some condition. The most common example
+was that of the bounded buffer where threads had to wait to either read from a buffer
+(empty check) or wait to fill the buffer (full check). Another instance was for
+using it to implement pthread_join.
+
+Since condition variables involve sleeping and waking up threads signals is one of 
+the most logical options one may choose to implement their behaviour. This is what
+we shall be sticking to for this part of the project.
+
+3] The TODOs
+
+The main task is to implement the functions mentioned below in condVar.cpp. To succesfully complete it,
+however, you will have to make some additions (not changes) to the condVar.h header
+file as well. Note that the return values for these functions are mentioned in condVar.cpp.
+
+* ConditionVariable()
+- This is the constructor of the conditional variable class that you shall implement.
+Make sure to initialize any class level variables you defined in condVar.h Note that
+all methods (apart from constructor and deconstructor) must be thread safe. As a result
+you will likely need to have some synchronization primitives to enable this. Do not
+forget to intialize them as well. (HINT: delcare these primitives as class level variables).
+
+* ~ConditionVariable()
+- This is the deconstructor of the conditional variable class that you shall implement.
+Make sure to free up resources that your class level variables take up. Do not
+forget to free the resources that your synchronization primitives take up as well.
+
+* int cond_var_signal()
+- Synonymous with pthread_cond_signal(). Send the SIGUSR1 signal to any one of the 
+threads sleeping/waiting on the condition variable.
+
+* int cond_var_broadcast()
+- Synonymous with pthread_cond_broadcast(). Send the SIGUSR1 signal to all of the 
+threads sleeping/waiting on the condition variable.
+
+* void cond_var_wait(pthread_mutex_t* mutex)
+- Synonymous with pthread_cond_wait(). The calling thread must suspend execution/sleep
+until it is sent the SIGUSR1 signal through a call to signal or broadcast functions.
+Just like the actual function you must follow the process or releasing and reacquiring
+the mutex passed in as the argument. You may assume that the calling thread has already
+acquired the mutex at the start of the function call. In conjunction with the second 
+paragraph of the man page for pthread_cond_wait(), ensure that after the lock has been 
+released, a call to cond_var_broadcast will wake it up (and that a call to signal
+could wake it up). Note that you must *not* ignore, block or change signal dispositions 
+for any signal apart from SIGUSR1. Also note that after returning from this function
+sending a SIGUSR1 signal to this process should terminate the process (default action).

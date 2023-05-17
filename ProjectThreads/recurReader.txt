@@ -1,4 +1,4 @@
-Recursive Locks
+RECURSIVE LOCKS
 
 Note: Lock and mutex are used interchangeably here to mean mutex. We are not discussing
 semaphores here in any capcity.
@@ -47,14 +47,14 @@ however, you will have to make some additions (not changes) to the recurMutex.h 
 file as well. Note that the return values for these functions are mentioned in recurMutex.cpp
 
 * RecursiveLock()
--This is the constructor of the recursive mutex class that you shall implement.
+- This is the constructor of the recursive mutex class that you shall implement.
 Make sure to initialize any class level variables you defined in recurMutex.h Note that
 all methods (apart from constructor and deconstructor) must be thread safe. As a result
 you will likely need to have some synchronization primitives to enable this. Do not
 forget to intialize them as well. (HINT: delcare these primitives as class level variables)
 
 * ~RecursiveLock()
--This is the deconstructor of the recursive mutex class that you shall implement.
+- This is the deconstructor of the recursive mutex class that you shall implement.
 Make sure to free up resources that your class level variables take up. Do not
 forget to free the resources that your synchronization primitives take up as well.
 
@@ -85,3 +85,7 @@ Note that it is not neccessary that the calling thread is the owner of the recur
 * int get_lock_owner()
 - This function returns the id of the thread that has currently acquired the recursive mutex
 Note that it is not neccessary that the calling thread is the owner of the recursive mutex
+
+Note: Mutexes and condition variables without any special attributes are the only
+synchronization primitives permitted. Make sure that you do not use cpp lock/condition 
+variables classes such as recursive_mutex.
