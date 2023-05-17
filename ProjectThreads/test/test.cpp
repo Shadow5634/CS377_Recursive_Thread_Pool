@@ -198,6 +198,70 @@ TEST(CondVar, basicWaitTest)
   delete condVar;
 }
 
+TEST(CondVar, broadcastTest)
+{
+  ConditionVariable* condVar = new ConditionVariable();
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+  pthread_t tid_arr[2];
+
+  encompass condStruct;
+  condStruct.condVar = condVar;
+  condStruct.mutex = &mutex;
+
+  for (int i = 0; i < 2; i++)
+  {
+    pthread_create((tid_arr + i), NULL, condHelper, (void*) &condStruct);
+  }
+
+  usleep(1); // letting threads be put to sleep
+  int val = condVar->cond_var_broadcast();
+  usleep(1); // letting thread wake up
+  EXPECT_EQ(val, 1);
+  EXPECT_EQ(condVar->sleepingThreadCount(), 0);
+
+  for (int i = 0; i < 2; i++)
+  {
+    pthread_join(tid_arr[i], NULL);
+  }
+
+  delete condVar;
+}
+
+TEST(CondVar, signalTest)
+{
+  ConditionVariable* condVar = new ConditionVariable();
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+  pthread_t tid_arr[2];
+
+  encompass condStruct;
+  condStruct.condVar = condVar;
+  condStruct.mutex = &mutex;
+
+  for (int i = 0; i < 2; i++)
+  {
+    pthread_create((tid_arr + i), NULL, condHelper, (void*) &condStruct);
+  }
+
+  usleep(1); // letting threads be put to sleep
+  int val = condVar->cond_var_signal();
+  usleep(1); // letting a thread wake up
+  EXPECT_EQ(val, 1);
+  EXPECT_EQ(condVar->sleepingThreadCount(), 1);
+
+  int val2 = condVar->cond_var_signal();
+  usleep(1); // letting a thread wake up
+  EXPECT_EQ(val2, 1);
+  EXPECT_EQ(condVar->sleepingThreadCount(), 0);
+
+  for (int i = 0; i < 2; i++)
+  {
+    pthread_join(tid_arr[i], NULL);
+  }
+
+  delete condVar;
+}
 // =================================================================================
 // =================================================================================
 // 3] Main method to execute all the above tests
