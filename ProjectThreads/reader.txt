@@ -1,0 +1,87 @@
+Recursive Locks
+
+Note: Lock and mutex are used interchangeably here to mean mutex. We are not discussing
+semaphores here in any capcity.
+
+1] Lock Attributes
+Have you ever wondered what the second parameter to pthread_mutex_init stands for? Attributes.
+But what does that mean and what are the different attrbute types? Some of them  are error
+checking, recursive, default, robustness, etc. In class we have already seen implementations
+for the spink lock approach such as test and set and compare and swap. For this project 
+you will have to implement recursive locks.
+
+2] Recursive Locks
+Imagine that you have to process a tree or a list (for reading/modifying it, etc) 
+and you choose to traverse these structures recursively. To make this function thread safe 
+you want to utilize mutexes and results is the following logic: locking mutex, recursively 
+calling the function, and unlocking the mutex. A mutex without any special attributes would
+not be able to handle this approach and would deadlock since on the recursive call the thread
+would attempt to reacquire the already acquired mutex.
+
+Consider also the following case. It is often the case that you do not know the implementations 
+of certain functions or that significant development has already been done and it would be 
+extremely time consuming to change things up. Consider the case where we are trying to make 
+a thread safe class. It is such that a group of methods must start out by grabbing a mutex 
+at the start since it deals with some class level variables that must be protected. To 
+keep your code clean, you also realize that a method you are writing also has to not only 
+conform to this approach of acquiring a lock at the start, but needs to call another method 
+of this group later on. This call must be such that the mutex cannot be given up before the 
+call. This will, however, lead to a deadlock since a thread cannot typically (mutex with null 
+attributes) reacquire mutexes.
+
+The issue highlighted in the above functions is that the *same* thread is prevented
+from reacquiring the mutex. This does seem weird since I have already own something 
+why cannot I own it again - simply say that I still own it. Recursive locks thus
+come in to counter act this in a similar manner. A recursive lock implementation 
+would keep a note of which thread has currently acquired the mutex as well as the 
+number of times that the mutex has been acquired by the current lock owner. It permits 
+reacquisition of lock but blocks on acquisition of lock if the lock is occupied and
+occupied by a thread that is not the caller. Similarly, unlocking the mutex just unlocks
+the mutex by 1 level. If the number of acquisitions reaches 0, the mutex is marked as free
+and ready to be acquired by other threads (or the same thread).
+
+3] The TODOs
+As we have seen, recursive mutexes indeed seems like a powerful idea. The main task is
+to implement the functions mentioned below in recurMutex.cpp. To succesfully complete it,
+however, you will have to make some additions (not changes) to the recurMutex.h header
+file as well. Note that the return values for these functions are mentioned in recurMutex.cpp
+
+* RecursiveLock()
+-This is the constructor of the recursive mutex class that you shall implement.
+Make sure to initialize any class level variables you defined in recurMutex.h Note that
+all methods (apart from constructor and deconstructor) must be thread safe. As a result
+you will likely need to have some synchronization primitives to enable this. Do not
+forget to intialize them as well. (HINT: delcare these primitives as class level variables)
+
+* ~RecursiveLock()
+-This is the deconstructor of the recursive mutex class that you shall implement.
+Make sure to free up resources that your class level variables take up. Do not
+forget to free the resources that your synchronization primitives take up as well.
+
+* int recur_mutex_try_lock()
+- Synonymous with pthread_mutex_trylock() function but modified to reflect the 
+behaviour for recursive mutexes. You will need to check whether the mutex can be acquired.
+Similar to the corresponding library function, this is a non blocking function and must
+return immediately. It should not put the calling thread to sleep/suspend execution.
+
+* int recur_mutex_lock()
+- Synonymous with pthread_mutex_lock() function but modified to reflect the 
+behaviour for recursive mutexes. You will need to check whether the mutex can be acquired.
+Similar to the corresponding library function, this is a blocking function and must
+only return after the calling thread can acquire the recursive mutex. (HINT: utilize 
+condition variable to simulate the blocking nature)
+
+* int recur_mutex_unlock()
+- Synonymous with pthread_mutex_unlock() function but modified to reflect the 
+behaviour for recursive mutexes. You will need to check whether the mutex can be unlocked.
+Similar to the corresponding library function, be sure to notify waiting threads (by call 
+to recur_mutex_lock) if the recursive lock was unlocked fully permitting other threads 
+to acquire it. (HINT: utilize condition variable to simulate the notifying feature). 
+
+* int get_acqui_count()
+- This function returns the number of times the recursive lock has been currently acquired
+Note that it is not neccessary that the calling thread is the owner of the recursive mutex
+
+* int get_lock_owner()
+- This function returns the id of the thread that has currently acquired the recursive mutex
+Note that it is not neccessary that the calling thread is the owner of the recursive mutex

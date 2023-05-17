@@ -58,14 +58,14 @@
       // deconstructor to free up resources used up by class level variables
       ~RecursiveLock();
 
+      // non-blocking function that tries to acquire recursive lock
+      int recur_mutex_try_lock();
+
       // blocking function to acquire recursive lock
       int recur_mutex_lock();
 
       // unlocks the recursive lock
       int recur_mutex_unlock();
-
-      // non-blocking function that tries to acquire recursive lock
-      int recur_mutex_try_lock();
 
       // returns the current #acquisitions of the recursive lock
       int get_acqui_count();
