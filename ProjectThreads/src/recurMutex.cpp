@@ -102,6 +102,9 @@ int RecursiveLock::recur_mutex_lock()
     while ((this->info.currThreadID != 0) && (this->info.currThreadID != pthread_self()))
     {
       pthread_cond_wait(&(this->sleeping_cond), &(this->info_lock));
+    }
+    if (this->info.count == 0)
+    {
       res = 1;
     }
 
@@ -192,7 +195,7 @@ pthread_t RecursiveLock::get_lock_owner()
   // locked here despite this function being a simple return in order to
   // avoid reading value while another thread could be modifying it
   pthread_mutex_lock(&(this->info_lock));
-    int res = this->info.currThreadID;
+    pthread_t res = this->info.currThreadID;
   pthread_mutex_unlock(&(this->info_lock));
 
   return res;
