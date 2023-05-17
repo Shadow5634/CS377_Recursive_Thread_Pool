@@ -48,6 +48,12 @@ If multiple threads of a process are blocked waiting for the same
 // since you will need to keep track of which threads are sleeping on the condition to wake them up
   // this will require additional condition variables and mutexes
 
+  // handlers.__sigaction_handler - GIVES COMPILE TIME ERROR
+  
+  // 3 - wait until the signal arrives (blocking the signal earlier helps to ) 
+  // sigwait/sigwaitinfo for suspensding execution of THREAD - returns signal number
+  // sigprocmask to block/unblock singals for THREAD
+
 /////////////////////////
      QUESTIONS
 /////////////////////////

@@ -7,6 +7,30 @@ pthread_t arr[2];
 pthread_mutex_t l;
 pthread_cond_t cond;
 
+// ### MY IMPLEMENTATION START ###
+  void cond_wait_usr_sleeper(int sigNum)
+  {
+    // struct sigaction handlers;
+    // handlers.sa_handler = cond_wait_usr_sleeper;
+    // sigaction(SIGUSR1, &handlers, NULL);
+    // sigaction(SIGUSR2, &handlers, NULL);
+
+    // struct sigaction handlers;
+    // handlers.sa_handler = SIG_DFL;
+    // sigaction(SIGUSR1, &handlers, NULL);
+    // sigaction(SIGUSR2, &handlers, NULL);
+    if (sigNum == SIGUSR1)
+    {
+      cout << "Handler called. Received SIGUSR1" <<  endl;
+    }
+    else if (sigNum == SIGUSR2)
+    {
+      cout << "Handler called. Received SIGUSR1" <<  endl;
+    }
+
+  }
+// ### MY IMPLEMENTATION END ###
+
 ConditionVariable* cv;
 
 int main(int argc, char** argv)
@@ -41,15 +65,17 @@ int main(int argc, char** argv)
   // pthread_join(arr[1], NULL);
 
   // CONDVAR TESTING
-  pthread_create(arr, NULL, condSigSender, NULL);
-  pthread_create((arr + 1), NULL, condSigReceiver, NULL);
-  pthread_join(arr[0], NULL);
-  pthread_join(arr[1], NULL);
+  // pthread_create(arr, NULL, condSigSender, NULL);
+  // pthread_create((arr + 1), NULL, condSigReceiver, NULL);
+  // pthread_join(arr[0], NULL);
+  // pthread_join(arr[1], NULL);
   // RECURMUTEX TESTING
   // basicRecurTest();
 
   // signal handler for SIGUSR1 AND SIGUSR2 back to default
   delete cv;
+  cout << pthread_self() << endl;
+  // pthread_kill(1, SIGUSR1);
 
   cout << "MAIN FINISHEDD" << endl;
   pthread_mutex_destroy(&l);

@@ -1,20 +1,5 @@
 #include "condVar.h"
 
-// ### MY IMPLEMENTATION START ###
-  void cond_wait_usr_sleeper(int sigNum)
-  {
-    if (sigNum == SIGUSR1)
-    {
-      cout << "Handler called. Received SIGUSR1" <<  endl;
-    }
-    else if (sigNum == SIGUSR2)
-    {
-      cout << "Handler called. Received SIGUSR1" <<  endl;
-    }
-
-  }
-// ### MY IMPLEMENTATION END ###
-
 /**
  * constructor to initialize class level variables
 */
@@ -26,16 +11,12 @@ ConditionVariable::ConditionVariable()
   // =================================================================================
   // =================================================================================
 
-  sigemptyset(&(this->user_sig));
-  sigaddset(&(this->user_sig), SIGUSR1);
+  // setting up a signal set of only SIGUSR1 signal
+  // allows easy blocking on this signal using sigwaitinfo system call
+  sigemptyset(&(this->user_sig));             
+  sigaddset(&(this->user_sig), SIGUSR1);        
 
-  struct sigaction handlers;
-  handlers.sa_handler = cond_wait_usr_sleeper;
-  // handlers.__sigaction_handler - GIVES COMPILE TIME ERROR
-  sigaction(SIGUSR1, &handlers, NULL);
-  sigaction(SIGUSR2, &handlers, NULL);
-
-  pthread_mutex_init(&(this->list_lock), NULL);
+  pthread_mutex_init(&(this->list_lock), NULL); // initialize mutex
 }
 
 /**
@@ -49,15 +30,13 @@ ConditionVariable::~ConditionVariable()
   // =================================================================================
   // =================================================================================
 
-  struct sigaction handlers;
-  handlers.sa_handler = SIG_DFL;
-  sigaction(SIGUSR1, &handlers, NULL);
-  sigaction(SIGUSR2, &handlers, NULL);
-
-  pthread_mutex_destroy(&(this->list_lock));
+  pthread_mutex_destroy(&(this->list_lock)); // free resources for mutex
 }
 
 // ### MY IMPLEMENTATION START ###
+  /**
+   * checks if the thread id passed in as argument matches the thread id of the calling thread
+  */
   bool same_thread(pthread_t& listEntry)
   {
     return (listEntry == pthread_self());
@@ -76,33 +55,31 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // =================================================================================
   // =================================================================================
 
-  // 1 - unlock mutex
-  pthread_mutex_unlock(mutex);
-
+  // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
   sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
 
-  // 2 - add tid to sleeping list (it is only after this that SIGUSR1 should be sent to it)
-  // this is ensured by how broadcase and signal are implemented
-  // this meth should ensure that CURRENT_TID not in @sleeping_threads PREVENT DUPLICATES
+  // add calling thread's id to sleeping list.
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
-  // 3 - wait until the signal arrives (blocking the signal earlier helps to ) 
-  // sigwait/sigwaitinfo for suspensding execution of THREAD - returns signal number
-  // sigprocmask to block/unblock singals for THREAD
-
-  // 3 - put thread to sleep until SIGUSR1 received (ensure no locks have been acquired)
+  // unlock mutex
+  pthread_mutex_unlock(mutex);
+  
+  // putting thread to sleep/suspending execution until SIGUSR1 received
   sigwaitinfo(&(this->user_sig), NULL);
 
-  // 4 - thread awoken, remove from sleeping list
+  // thread has awoken after receiving SIGUSR1
+  // removing calling thread id from sleeping list to note that thread is no longer sleeping
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.remove_if(same_thread);
   pthread_mutex_unlock(&(this->list_lock));
 
+  // unblocking signal since after being removed from sleeping list
+  // it can't be sent SIGUSR1 through signal/broadcast functions being implemented
   sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
 
-  // 5 - reacquire lock
+  // reacquire lock
   pthread_mutex_lock(mutex);
 }
 
