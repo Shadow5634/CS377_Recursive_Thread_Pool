@@ -165,6 +165,16 @@ TEST(CondVar, correctIntializations)
   delete condVar;
 }
 
+TEST(CondVar, basicSignalBroadcastTest)
+{
+  ConditionVariable* condVar = new ConditionVariable();
+
+  EXPECT_EQ(condVar->cond_var_signal(), 0);
+  EXPECT_EQ(condVar->cond_var_broadcast(), 0);
+
+  delete condVar;
+}
+
 TEST(CondVar, basicWaitTest)
 {
   void* condHelper(void* vargp);
