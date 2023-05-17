@@ -49,28 +49,65 @@ int RecursiveLock::recur_mutex_try_lock()
   // =================================================================================
   // =================================================================================
 
-  int res;
+  int res;  // variable that keeps track of return value
 
   pthread_mutex_lock(&(this->info_lock));
     
-    // recursive acquisition of a free lock by same thread
+    // recursive acquisition of a free lock by current (before this call) owner thread
     if (this->info.currThreadID == pthread_self())
     {
       res = 0;
     }
-    // acquisition of a free lock by different thread 
+    // acquisition of free lock by new (before this call) owner thread 
     else if (this->info.currThreadID == 0)
     {
       this->info.currThreadID = pthread_self();
       res = 1;
     }
-    // acquisition of unfree lock by different thread - ERROR
+    // lock has already been acquired by a different thread
     else
     {
       pthread_mutex_unlock(&(this->info_lock));
       return -1;
     }
 
+    // incrementing count to reflect the fact that an acquisition has taken place
+    // note that if new owner thread has been established, a previous call to unlock makes sure that
+    // count was 0. As a result count is correctly initialized to 1 for this case
+    this->info.count++;
+  pthread_mutex_unlock(&(this->info_lock));
+
+  return res;
+}
+
+/**
+ * locks a mutex using recursive lock approach
+ * 
+ * return 0:  lock has been succesfully reacquired (calling thread is current owner)
+ * return 1:  lock has been succesfully acquired (calling thread is new owner)
+*/
+int RecursiveLock::recur_mutex_lock()
+{
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  int res = 0; // variable that keeps track of return value
+
+  pthread_mutex_lock(&(this->info_lock));
+    // lock has been acquired by a different thread   
+    // infinitely wait until you can assume control
+    while ((this->info.currThreadID != 0) && (this->info.currThreadID != pthread_self()))
+    {
+      pthread_cond_wait(&(this->sleeping_cond), &(this->info_lock));
+      res = 1;
+    }
+
+    // either waited until recursive lock was free or was able to acquire lock on first try
+    // owner is set and count updated accordingly (similar reasoning to try_lock for incrementation)
+    this->info.currThreadID = pthread_self();
     this->info.count++;
   pthread_mutex_unlock(&(this->info_lock));
 
@@ -92,17 +129,17 @@ int RecursiveLock::recur_mutex_unlock()
   // =================================================================================
   // =================================================================================
 
-  int res;
+  int res; // variable that keeps track of return value
 
   pthread_mutex_lock(&(this->info_lock));
-    // lock already free or trying to free a lock you have not acquired
+    // lock already free or acquired by a different thread
     if ((this->info.currThreadID == 0) || (this->info.currThreadID != pthread_self()))
     {
       pthread_mutex_unlock(&(this->info_lock));
       return -1;
     }
-
-    // recursive lock released all the way - it is now truly unlocked
+    // recursive lock released all the way and is open to acquisition by other threads
+    // sends signal to wake up a thread that is sleeping in lock function waiting for change to acquire lock
     if (--(this->info.count) == 0)
     {
       this->info.currThreadID = 0;
@@ -121,38 +158,6 @@ int RecursiveLock::recur_mutex_unlock()
 }
 
 /**
- * locks a mutex using recursive lock approach
- * 
- * return 0:  lock has been succesfully reacquired (calling thread is current owner)
- * return 1:  lock has been succesfully acquired (calling thread is new owner)
-*/
-int RecursiveLock::recur_mutex_lock()
-{
-  // =================================================================================
-  // =================================================================================
-  // ANSWER FOLLOWS:
-  // =================================================================================
-  // =================================================================================
-  int res = 0;
-
-  pthread_mutex_lock(&(this->info_lock));
-    // lock has been acquired by a different thread   
-    // infinitely wait until you can assume control
-    while ((this->info.currThreadID != 0) && (this->info.currThreadID != pthread_self()))
-    {
-      pthread_cond_wait(&(this->sleeping_cond), &(this->info_lock));
-      res = 1;
-    }
-
-    // assume control and when  made the owner, increment count:
-    this->info.currThreadID = pthread_self();
-    this->info.count++;
-  pthread_mutex_unlock(&(this->info_lock));
-
-  return res;
-}
-
-/**
  * returns the #acquisitions of lock currently
 */
 int RecursiveLock::get_acqui_count()
@@ -163,6 +168,8 @@ int RecursiveLock::get_acqui_count()
   // =================================================================================
   // =================================================================================
 
+  // locked here despite this function being a simple return in order to
+  // avoid reading value while another thread could be modifying it
   pthread_mutex_lock(&(this->info_lock));
     int res = this->info.count;
   pthread_mutex_unlock(&(this->info_lock));
@@ -182,6 +189,8 @@ pthread_t RecursiveLock::get_lock_owner()
   // =================================================================================
   // =================================================================================
 
+  // locked here despite this function being a simple return in order to
+  // avoid reading value while another thread could be modifying it
   pthread_mutex_lock(&(this->info_lock));
     int res = this->info.currThreadID;
   pthread_mutex_unlock(&(this->info_lock));
