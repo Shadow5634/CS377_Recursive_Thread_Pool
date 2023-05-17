@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "recurMutex.h"
-#include "recurMutex.h"
+#include "condVar.h"
 
 using namespace std;
 
@@ -86,7 +86,6 @@ TEST(RecurMutex, correctCountAndOwnerForLock)
     if (i == 0)
     {
       EXPECT_EQ(val, 1);
-      cout << "correct starting lock value" << endl;
     }
     else
     {
@@ -137,10 +136,14 @@ TEST(RecurMutex, basicTryLockTest)
 // =================================================================================
 // =================================================================================
 
-TEST(CondVar, Test1)
+TEST(CondVar, correctIntializations)
 {
-  // carry out code
-  cout << "Test suite 2, test1 works" << endl;
+  ConditionVariable* condVar = new ConditionVariable();
+
+  EXPECT_EQ(condVar->sleepingThreadCount(), 0);
+  EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
+  
+  delete condVar;
 }
 
 // =================================================================================

@@ -47,3 +47,5 @@ encase tid and count into one structure and one lock for the entire structure
 
 // it does not seem to be the case but think about whether these functions must be atomic
 // ANSWER END
+
+need additional functions for testing to keep class level variables as private
