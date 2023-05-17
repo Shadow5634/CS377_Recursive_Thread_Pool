@@ -163,4 +163,3 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // reacquire lock
   pthread_mutex_lock(mutex);
 }
-
