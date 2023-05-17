@@ -139,3 +139,28 @@ int ConditionVariable::cond_var_broadcast()
 
   return res;
 }
+
+/**
+ * returns the number of threads that are currently sleeping
+*/
+int ConditionVariable::sleepingThreadCount()
+{
+  pthread_mutex_lock(&(this->list_lock));
+    int size = this->sleeping_threads.size();
+  pthread_mutex_unlock(&(this->list_lock));
+
+  return size;
+}
+
+/**
+ * checks wthether the given tid is one of the sleeping threads
+ * Note that treat the case of not sleeping and no threads sleeping as the same
+*/
+bool ConditionVariable::isSleeping(pthread_t tid)
+{
+  pthread_mutex_lock(&(this->list_lock));
+    auto ref = find(this->sleeping_threads.begin(), this->sleeping_threads.end(), tid);
+  pthread_mutex_unlock(&(this->list_lock));
+
+  return (ref != this->sleeping_threads.end());
+}

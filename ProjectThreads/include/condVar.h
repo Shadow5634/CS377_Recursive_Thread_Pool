@@ -21,6 +21,7 @@
   #include <signal.h>
   #include <list>
   #include <unordered_map>
+  #include <algorithm>
 
   using namespace std;
 
@@ -58,6 +59,12 @@
 
       // send signal(SIGUSR1) to all of the sleeping threads to be woken up
       int cond_var_broadcast();
+
+      // returns the number of threads currently sleeping
+      int sleepingThreadCount();
+
+      // returns as to whether the thread with id @tid is currently sleeping or not
+      bool isSleeping(pthread_t tid);
   };
 
 #endif
