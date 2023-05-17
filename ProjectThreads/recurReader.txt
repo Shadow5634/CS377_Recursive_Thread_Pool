@@ -58,6 +58,14 @@ forget to intialize them as well. (HINT: delcare these primitives as class level
 Make sure to free up resources that your class level variables take up. Do not
 forget to free the resources that your synchronization primitives take up as well.
 
+* int get_acqui_count()
+- This function returns the number of times the recursive lock has been currently acquired
+Note that it is not neccessary that the calling thread is the owner of the recursive mutex
+
+* int get_lock_owner()
+- This function returns the id of the thread that has currently acquired the recursive mutex
+Note that it is not neccessary that the calling thread is the owner of the recursive mutex
+
 * int recur_mutex_try_lock()
 - Synonymous with pthread_mutex_trylock() function but modified to reflect the 
 behaviour for recursive mutexes. You will need to check whether the mutex can be acquired.
@@ -77,14 +85,6 @@ behaviour for recursive mutexes. You will need to check whether the mutex can be
 Similar to the corresponding library function, be sure to notify waiting threads (by call 
 to recur_mutex_lock) if the recursive lock was unlocked fully permitting other threads 
 to acquire it. (HINT: utilize condition variable to simulate the notifying feature). 
-
-* int get_acqui_count()
-- This function returns the number of times the recursive lock has been currently acquired
-Note that it is not neccessary that the calling thread is the owner of the recursive mutex
-
-* int get_lock_owner()
-- This function returns the id of the thread that has currently acquired the recursive mutex
-Note that it is not neccessary that the calling thread is the owner of the recursive mutex
 
 Note: Mutexes and condition variables without any special attributes are the only
 synchronization primitives permitted. Make sure that you do *not* use cpp lock/condition 

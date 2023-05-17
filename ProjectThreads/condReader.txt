@@ -41,6 +41,15 @@ forget to intialize them as well. (HINT: delcare these primitives as class level
 Make sure to free up resources that your class level variables take up. Do not
 forget to free the resources that your synchronization primitives take up as well.
 
+* int sleepingThreadCount()
+- This function should return the number of threads that are currently waiting on the 
+condition variable.
+
+* bool isSleeping(pthread_t tid)
+- This function checks to see whether the thread with id @tid is one of the sleeping threads
+at the time of call. Having no threads sleeping should not be treated as a special case - 
+regard it as a case of failure (i.e. return false).
+
 * int cond_var_signal()
 - Synonymous with pthread_cond_signal(). Send the SIGUSR1 signal to any one of the 
 threads sleeping/waiting on the condition variable.

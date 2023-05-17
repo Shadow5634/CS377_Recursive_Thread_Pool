@@ -58,6 +58,12 @@
       // deconstructor to free up resources used up by class level variables
       ~RecursiveLock();
 
+      // returns the current #acquisitions of the recursive lock
+      int get_acqui_count();
+
+      // returns the thread id of the current owner of the recursive lock
+      pthread_t get_lock_owner();
+
       // non-blocking function that tries to acquire recursive lock
       int recur_mutex_try_lock();
 
@@ -66,12 +72,6 @@
 
       // unlocks the recursive lock
       int recur_mutex_unlock();
-
-      // returns the current #acquisitions of the recursive lock
-      int get_acqui_count();
-
-      // returns the thread id of the current owner of the recursive lock
-      pthread_t get_lock_owner();
   };
 
 #endif 

@@ -51,8 +51,11 @@
       // deconstructor to free up resources used by class level variables
       ~ConditionVariable();
 
-      // blocking function that suspends execution until woken up through signal/broadcast
-      void cond_var_wait(pthread_mutex_t* mutex);
+      // returns the number of threads currently sleeping
+      int sleepingThreadCount();
+
+      // returns as to whether the thread with id @tid is currently sleeping or not
+      bool isSleeping(pthread_t tid);
 
       // send a singal (SIGUSR1) to any one of the sleeping threads to be woken up
       int cond_var_signal();
@@ -60,11 +63,8 @@
       // send signal(SIGUSR1) to all of the sleeping threads to be woken up
       int cond_var_broadcast();
 
-      // returns the number of threads currently sleeping
-      int sleepingThreadCount();
-
-      // returns as to whether the thread with id @tid is currently sleeping or not
-      bool isSleeping(pthread_t tid);
+      // blocking function that suspends execution until woken up through signal/broadcast
+      void cond_var_wait(pthread_mutex_t* mutex);
   };
 
 #endif

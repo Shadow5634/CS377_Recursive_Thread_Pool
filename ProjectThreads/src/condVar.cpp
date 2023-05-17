@@ -33,54 +33,28 @@ ConditionVariable::~ConditionVariable()
   pthread_mutex_destroy(&(this->list_lock)); // free resources for mutex
 }
 
-// ### MY IMPLEMENTATION START ###
-  /**
-   * checks if the thread id passed in as argument matches the thread id of the calling thread
-  */
-  bool same_thread(pthread_t& listEntry)
-  {
-    return (listEntry == pthread_self());
-  }
-// ### MY IMPLEMENTATION START ###
+/**
+ * returns the number of threads that are currently sleeping
+*/
+int ConditionVariable::sleepingThreadCount()
+{
+  pthread_mutex_lock(&(this->list_lock));
+    int size = this->sleeping_threads.size();
+  pthread_mutex_unlock(&(this->list_lock));
+
+  return size;
+}
 
 /**
- * puts the caller thread to sleep/suspends execution
- * process wakes up/resumes execution on receiving signal (SIGUSR1)
+ * checks wthether the given tid is one of the sleeping threads
 */
-void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
+bool ConditionVariable::isSleeping(pthread_t tid)
 {
-  // =================================================================================
-  // =================================================================================
-  // ANSWER FOLLOWS:
-  // =================================================================================
-  // =================================================================================
-
-  // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
-  sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
-
-  // add calling thread's id to sleeping list.
   pthread_mutex_lock(&(this->list_lock));
-    this->sleeping_threads.push_front(pthread_self());
+    auto ref = find(this->sleeping_threads.begin(), this->sleeping_threads.end(), tid);
   pthread_mutex_unlock(&(this->list_lock));
 
-  // unlock mutex
-  pthread_mutex_unlock(mutex);
-  
-  // putting thread to sleep/suspending execution until SIGUSR1 received
-  sigwaitinfo(&(this->user_sig), NULL);
-
-  // thread has awoken after receiving SIGUSR1
-  // removing calling thread id from sleeping list to note that thread is no longer sleeping
-  pthread_mutex_lock(&(this->list_lock));
-    this->sleeping_threads.remove_if(same_thread);
-  pthread_mutex_unlock(&(this->list_lock));
-
-  // unblocking signal since after being removed from sleeping list
-  // it can't be sent SIGUSR1 through signal/broadcast functions being implemented
-  sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
-
-  // reacquire lock
-  pthread_mutex_lock(mutex);
+  return (ref != this->sleeping_threads.end());
 }
 
 /**
@@ -140,27 +114,53 @@ int ConditionVariable::cond_var_broadcast()
   return res;
 }
 
-/**
- * returns the number of threads that are currently sleeping
-*/
-int ConditionVariable::sleepingThreadCount()
-{
-  pthread_mutex_lock(&(this->list_lock));
-    int size = this->sleeping_threads.size();
-  pthread_mutex_unlock(&(this->list_lock));
-
-  return size;
-}
+// ### MY IMPLEMENTATION START ###
+  /**
+   * checks if the thread id passed in as argument matches the thread id of the calling thread
+  */
+  bool same_thread(pthread_t& listEntry)
+  {
+    return (listEntry == pthread_self());
+  }
+// ### MY IMPLEMENTATION START ###
 
 /**
- * checks wthether the given tid is one of the sleeping threads
- * Note that treat the case of not sleeping and no threads sleeping as the same
+ * puts the caller thread to sleep/suspends execution
+ * process wakes up/resumes execution on receiving signal (SIGUSR1)
 */
-bool ConditionVariable::isSleeping(pthread_t tid)
+void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 {
+  // =================================================================================
+  // =================================================================================
+  // ANSWER FOLLOWS:
+  // =================================================================================
+  // =================================================================================
+
+  // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
+  sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
+
+  // add calling thread's id to sleeping list.
   pthread_mutex_lock(&(this->list_lock));
-    auto ref = find(this->sleeping_threads.begin(), this->sleeping_threads.end(), tid);
+    this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
-  return (ref != this->sleeping_threads.end());
+  // unlock mutex
+  pthread_mutex_unlock(mutex);
+  
+  // putting thread to sleep/suspending execution until SIGUSR1 received
+  sigwaitinfo(&(this->user_sig), NULL);
+
+  // thread has awoken after receiving SIGUSR1
+  // removing calling thread id from sleeping list to note that thread is no longer sleeping
+  pthread_mutex_lock(&(this->list_lock));
+    this->sleeping_threads.remove_if(same_thread);
+  pthread_mutex_unlock(&(this->list_lock));
+
+  // unblocking signal since after being removed from sleeping list
+  // it can't be sent SIGUSR1 through signal/broadcast functions being implemented
+  sigprocmask(SIG_UNBLOCK, &(this->user_sig), NULL);
+
+  // reacquire lock
+  pthread_mutex_lock(mutex);
 }
+
