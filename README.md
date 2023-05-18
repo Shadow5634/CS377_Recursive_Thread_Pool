@@ -3,7 +3,9 @@
 **Link to slides**: https://1drv.ms/p/s!AkFfD6OjEbCghIATpQdXIXmayC4FUQ?e=efsbkp \
 **Link to video recording**: https://drive.google.com/drive/folders/1C2UDZzjvFLNzbPP7zJKspsKDu_HazD9B?usp=share_link
 
-The first recording is the one with the slides
+The first recording is the one with the slides. Note that personalNotes and main.cpp is a dump
+of all my thoughts and testing. It is not organized since it does not directly relate to the project.
+Feel free to go through it to understand the journet in greater detail.
 
 This readme just covers the journey of the project.
 To know specific details about implementation watch the video (link above)
