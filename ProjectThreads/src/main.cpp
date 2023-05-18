@@ -63,11 +63,11 @@ int main(int argc, char** argv)
   pthread_mutex_init(&l, NULL);
   pthread_cond_init(&cond, NULL);
 
-  pthread_t t;
-  pthread_create(&t, NULL, condHelper, NULL);
-  cout << "Sending signal" << endl;
-  pthread_cond_signal(&cond);
-  pthread_join(t, NULL);
+  // pthread_t t;
+  // pthread_create(&t, NULL, condHelper, NULL);
+  // cout << "Sending signal" << endl;
+  // pthread_cond_signal(&cond);
+  // pthread_join(t, NULL);
 
   // pthread_create(arr, NULL, sender, NULL);
   // pthread_create((arr + 1), NULL, receiver, NULL);
