@@ -4,7 +4,7 @@
   - [1. Lock Attributes](#1-lock-attributes)
   - [2. Recursive Locks](#2-recursive-locks)
   - [3. The TODOs](#3-the-todos)
-- [Part 2: CONDITIONAL VARIABLES](#part-2-conditional-variables)
+- [Part 2: CONDITION VARIABLES](#part-2-condition-variables)
   - [1. Recursive Lock implementation dependencies](#1-recursive-lock-implementation-dependencies)
   - [2. Condition Variables](#2-condition-variables)
   - [3. The TODOs](#3-the-todos-1)
@@ -104,7 +104,7 @@ synchronization primitives permitted. Make sure that you do *not* use C++ lock/c
 variable classes such as `recursive_mutex`.<br>
 <br>
 
-# Part 2: CONDITIONAL VARIABLES
+# Part 2: CONDITION VARIABLES
 
 Note: Lock and mutex are used interchangeably here to mean mutex. We are not discussing
 semaphores here in any capacity.<br>
@@ -140,14 +140,14 @@ however, you will have to make some additions (not changes) to the `condVar.h` h
 file as well. Note that the return values for these functions are mentioned in `condVar.cpp`.
 
 * `ConditionVariable()`
-  - This is the constructor of the conditional variable class that you shall implement.
+  - This is the constructor of the condition variable class that you shall implement.
     Make sure to initialize any class-level variables you defined in `condVar.h`. Note that
     all methods (apart from the constructor and destructor) must be thread-safe. As a result,
     you will likely need to have some synchronization primitives to enable this. Do not
     forget to initialize them as well. (HINT: declare these primitives as class-level variables).
 
 * `~ConditionVariable()`
-  - This is the destructor of the conditional variable class that you shall implement.
+  - This is the destructor of the condition variable class that you shall implement.
     Make sure to free up resources that your class-level variables take up. Do not
     forget to free the resources that your synchronization primitives take up as well.
 

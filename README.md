@@ -47,7 +47,7 @@ whatever reading I did online it appeared that the pthread_cond_wait function sh
 used with recursive mutexes. Given time constraints I chose to stick with this and not make 
 my own pthread_cond_wait for recursive mutexes.\
 \
-Conditional variable implementation had its own hurdles. I new that I had to use some form of sleep
+Condition variable implementation had its own hurdles. I new that I had to use some form of sleep
 that would get woken up during a call to broadcast or signal but I was unsure as to how to go about that.
 After some research I realized that signals was going to be the way to go. But signals are asynchronous
 in the sense that they can arrive at any time and thus i had to see how I would manage this. Signal handlers
