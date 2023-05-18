@@ -3,8 +3,7 @@
 **Link to slides**: https://1drv.ms/p/s!AkFfD6OjEbCghIATpQdXIXmayC4FUQ?e=efsbkp \
 **Link to video recording**: https://drive.google.com/drive/folders/1C2UDZzjvFLNzbPP7zJKspsKDu_HazD9B?usp=share_link
 
-The first recording is in the slides themselves.
-Open the slides and navigate to the record tab of ppt and hit review.
+The first recording is the one with the slides
 
 This readme just covers the journey of the project.
 To know specific details about implementation watch the video (link above)
