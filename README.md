@@ -1,6 +1,6 @@
 # Project Journey
 
-**Link to slides**:\
+**Link to slides**: https://1drv.ms/p/s!AkFfD6OjEbCghIATpQdXIXmayC4FUQ?e=efsbkp\
 **Link to video recording**:
 
 This readme just covers the journey of the project.
