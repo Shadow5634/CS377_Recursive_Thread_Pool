@@ -1,10 +1,21 @@
+## Table of Contents
+
+- [Part 1: RECURSIVE LOCKS](#part-1-recursive-locks)
+  - [1. Lock Attributes](#1-lock-attributes)
+  - [2] Recursive Locks](#2-recursive-locks)
+  - [3] The TODOs](#3-the-todos)
+- [Part 2: CONDITIONAL VARIABLES](#part-2-conditional-variables)
+  - [1] Recursive Lock implementation dependencies](#1-recursive-lock-implementation-dependencies)
+  - [2] Condition Variables](#2-condition-variables)
+  - [3] The TODOs](#3-the-todos-1)
+
 # Part 1: RECURSIVE LOCKS
 
 Note: Lock and mutex are used interchangeably here to mean mutex. We are not discussing
 semaphores here in any capacity.<br>
 <br>
 
-## 1. Lock Attributes
+## 1] Lock Attributes
 
 Have you ever wondered what the second parameter to `pthread_mutex_init` stands for? Attributes.
 But what does that mean and what are the different attribute types? Some of them are error
@@ -13,7 +24,7 @@ for the spin lock approach such as test and set and compare and swap. For this p
 you will have to implement recursive locks.<br>
 <br>
 
-## 2. Recursive Locks
+## 2] Recursive Locks
 
 Imagine that you have to process a tree or a list (for reading/modifying it, etc) 
 and you choose to traverse these structures recursively. To make this function thread safe, 
@@ -41,7 +52,7 @@ the mutex by 1 level. If the number of acquisitions reaches 0, the mutex is mark
 and ready to be acquired by other threads (or the same thread).<br>
 <br>
 
-## 3. The TODOs
+## 3] The TODOs
 
 As we have seen, recursive mutexes indeed seem like a powerful idea. The main task is
 to implement the functions mentioned below in `recurMutex.cpp`. To successfully complete it,
@@ -99,7 +110,7 @@ Note: Lock and mutex are used interchangeably here to mean mutex. We are not dis
 semaphores here in any capacity.<br>
 <br>
 
-## 1. Recursive Lock implementation dependencies
+## 1] Recursive Lock implementation dependencies
 
 You would have noticed that we used condition variables to implement the blocking 
 mechanism for recursive mutexes. We already knew what a default mutex implementation 
@@ -109,7 +120,7 @@ can be implemented without using recursive mutexes in order to avoid circular de
 This is exactly what this section of the project relates to.<br>
 <br>
 
-## 2. Condition Variables
+## 2] Condition Variables
 
 As we have looked at in class, condition variables come into play when we wish to
 have some ordering of threads depending on some condition. The most common example
@@ -122,7 +133,7 @@ the most logical options one may choose to implement their behavior. This is wha
 we shall be sticking to for this part of the project.<br>
 <br>
 
-## 3. The TODOs
+## 3] The TODOs
 
 The main task is to implement the functions mentioned below in `condVar.cpp`. To successfully complete it,
 however, you will have to make some additions (not changes) to the `condVar.h` header
