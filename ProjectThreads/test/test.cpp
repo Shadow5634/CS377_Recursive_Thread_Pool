@@ -318,6 +318,7 @@ TEST(CondVar, signalTest)
   pthread_mutex_destroy(&mutex);
   delete condVar;
 }
+
 // =================================================================================
 // =================================================================================
 // 3] Main method to execute all the above tests
