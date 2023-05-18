@@ -10,6 +10,11 @@ using namespace std;
 // =================================================================================
 // =================================================================================
 
+/**
+ * This function seeks to find the factorial of @num for some safety 
+ * (not needed here but to make a test), it must acquire @rlock
+ * at the start of the function call and release it at end
+*/
 int recursiveMutexFact(int num, RecursiveLock* rlock)
 {
   rlock->recur_mutex_lock();
@@ -19,11 +24,17 @@ int recursiveMutexFact(int num, RecursiveLock* rlock)
       return 1;
     }
 
+    // recursive call to get factorial
+    // result not returned immediately since must unlock recursive mutex
     int val = num * recursiveMutexFact(num - 1, rlock);
   rlock->recur_mutex_unlock();
   return val;
 }
 
+/**
+ * a thread function that tries to lock a recursive lock that
+ * is owned by some other thread. Thus try_lock should return -1
+*/
 void* tryLockHelper(void* vargp)
 {
   RecursiveLock* rlock = (RecursiveLock*) vargp;
@@ -31,6 +42,10 @@ void* tryLockHelper(void* vargp)
   return NULL;
 }
 
+/**
+ * Ensures that on object initialization the recursive lock is
+ * not acquired by any thread i.e. #acquisions = owner thread id = 0
+*/
 TEST(RecurMutex, correctIntializations)
 {
   RecursiveLock* rlock = new RecursiveLock();
@@ -42,6 +57,10 @@ TEST(RecurMutex, correctIntializations)
   delete rlock;
 }
 
+/**
+ * Similar to above, ensures that unlocking a mutex without locking it
+ * is an error case and thus returns -1
+*/
 TEST(RecurMutex, basicUnlockTest)
 {
   RecursiveLock* rlock = new RecursiveLock();
@@ -49,6 +68,11 @@ TEST(RecurMutex, basicUnlockTest)
   delete rlock;
 }
 
+/**
+ * Tests that no deadlocks occur for recusively computing
+ * factorials involving acquiring the recursive lock at the start
+ * Tests for edge case of 1 when no recursive made as well
+*/
 TEST(RecurMutex, computesFactorial)
 {
   int recursiveMutexFact(int num, RecursiveLock* rlock);
@@ -73,6 +97,13 @@ TEST(RecurMutex, computesFactorial)
   EXPECT_EQ(owner5, 0);
 }
 
+/**
+ * checks that recur_mutex_lock works correctly
+ * locks the mutex n times (ensuring that lock returns correct 
+ * values for first and reacquisition) and then unlocks in n times 
+ * (again ensuring that unlock returns correct values for unlocking by 1 layer
+ * and unlocking fully)
+*/
 TEST(RecurMutex, correctCountAndOwnerForLock)
 {
   RecursiveLock* rlock = new RecursiveLock();
@@ -83,20 +114,15 @@ TEST(RecurMutex, correctCountAndOwnerForLock)
     int val = rlock->recur_mutex_lock();
 
     // checks if lock returns the correct value
-    if (i == 0)
-    {
-      EXPECT_EQ(val, 1);
-    }
-    else
-    {
-      EXPECT_EQ(val, 0);
-    }
+    if (i == 0) { EXPECT_EQ(val, 1); }
+    else { EXPECT_EQ(val, 0); }
 
     // checks if count and owner updated correctly
     EXPECT_EQ(rlock->get_lock_owner(), pthread_self());
     EXPECT_EQ(rlock->get_acqui_count(), i + 1);
   }
 
+  // only partially unlocking the mutex
   for (int i = 0; i < 2; i++)
   {
     // mutex should be unlocked only by 1 layer
@@ -115,6 +141,10 @@ TEST(RecurMutex, correctCountAndOwnerForLock)
   delete rlock;
 }
 
+/**
+ * Checks that try lock returns -1 when trying to acquire a lock
+ * that has already been acquired by a different thread
+*/
 TEST(RecurMutex, basicTryLockTest)
 {
   void* tryLockHelper(void* vargp);
@@ -136,12 +166,23 @@ TEST(RecurMutex, basicTryLockTest)
 // =================================================================================
 // =================================================================================
 
+/**
+ * This strcture is used to wrap a ConditionVariable object
+ * and the mutex associated with its cond_wait in order to 
+ * pass it into a thread function
+ * modify val is used for checks
+*/
 typedef struct encompass 
 {
   ConditionVariable* condVar;
   pthread_mutex_t* mutex;
+  int modify;
 } encompass;
 
+/**
+ * calls cond_var_wait while ensuring that the associated
+ * mutex is locked before and unlocked after the wait
+*/
 void* condHelper(void* vargp)
 {
   encompass* condStruct = (encompass*) vargp;
@@ -152,9 +193,14 @@ void* condHelper(void* vargp)
     condVar->cond_var_wait(mutex);
   pthread_mutex_unlock(mutex);
 
+  condStruct->modify = 10;
   return NULL;
 }
 
+/**
+ * Ensures that at start no threads are sleeping on the condition
+ * thus must also be the case that signal and broadcast do not send any signals
+*/
 TEST(CondVar, correctIntializations)
 {
   ConditionVariable* condVar = new ConditionVariable();
@@ -162,19 +208,18 @@ TEST(CondVar, correctIntializations)
   EXPECT_EQ(condVar->sleepingThreadCount(), 0);
   EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
 
-  delete condVar;
-}
-
-TEST(CondVar, basicSignalBroadcastTest)
-{
-  ConditionVariable* condVar = new ConditionVariable();
-
   EXPECT_EQ(condVar->cond_var_signal(), 0);
   EXPECT_EQ(condVar->cond_var_broadcast(), 0);
 
   delete condVar;
 }
 
+/**
+ * Checks whether wait seems to function properly - indeed puts thread to sleep
+ * and which is awoken peacefully when sent SIGUSR1 through pthread_kill
+ * signal/broadcast not used to limit dependancy on other methods
+ * thus must also be the case that signal and broadcast do not send any signals
+*/
 TEST(CondVar, basicWaitTest)
 {
   void* condHelper(void* vargp);
@@ -186,18 +231,24 @@ TEST(CondVar, basicWaitTest)
   encompass condStruct;
   condStruct.condVar = condVar;
   condStruct.mutex = &mutex;
+  condStruct.modify = 0;
 
   pthread_t thread;
   pthread_create(&thread, NULL, condHelper, (void*) &condStruct);
-  usleep(1); // enough to force a context switch to the created thread
-  int val = condVar->cond_var_signal();
-  EXPECT_EQ(val, 1);
+  usleep(1); // ensure that created thread goes to sleep
+  pthread_kill(thread, SIGUSR1);
+  usleep(1); // ensure that signal wakes up created thread
+  EXPECT_EQ(condStruct.modify, 10);
 
   pthread_join(thread, NULL);
+  pthread_mutex_destroy(&mutex);
 
   delete condVar;
 }
 
+/**
+ * Confirms that cond_var_broadcast wakes up all the threads waiting on the condition
+*/
 TEST(CondVar, broadcastTest)
 {
   ConditionVariable* condVar = new ConditionVariable();
@@ -216,18 +267,22 @@ TEST(CondVar, broadcastTest)
 
   usleep(1); // letting threads be put to sleep
   int val = condVar->cond_var_broadcast();
-  usleep(1); // letting thread wake up
-  EXPECT_EQ(val, 1);
-  EXPECT_EQ(condVar->sleepingThreadCount(), 0);
+  usleep(1); // letting threads wake up
+  EXPECT_EQ(val, 1);  // signals were sent
+  EXPECT_EQ(condVar->sleepingThreadCount(), 0);  // no sleeping threads
 
   for (int i = 0; i < 2; i++)
   {
     pthread_join(tid_arr[i], NULL);
   }
 
+  pthread_mutex_destroy(&mutex);
   delete condVar;
 }
 
+/**
+ * Checks to see that cond_var_signal wakes up only 1 thread at a time
+*/
 TEST(CondVar, signalTest)
 {
   ConditionVariable* condVar = new ConditionVariable();
@@ -247,19 +302,20 @@ TEST(CondVar, signalTest)
   usleep(1); // letting threads be put to sleep
   int val = condVar->cond_var_signal();
   usleep(1); // letting a thread wake up
-  EXPECT_EQ(val, 1);
-  EXPECT_EQ(condVar->sleepingThreadCount(), 1);
+  EXPECT_EQ(val, 1); // signal sent
+  EXPECT_EQ(condVar->sleepingThreadCount(), 1); // only 1 of 2 threads awoken
 
   int val2 = condVar->cond_var_signal();
   usleep(1); // letting a thread wake up
-  EXPECT_EQ(val2, 1);
-  EXPECT_EQ(condVar->sleepingThreadCount(), 0);
+  EXPECT_EQ(val2, 1); // signal sent
+  EXPECT_EQ(condVar->sleepingThreadCount(), 0); // 1 of 1 thread awoken
 
   for (int i = 0; i < 2; i++)
   {
     pthread_join(tid_arr[i], NULL);
   }
 
+  pthread_mutex_destroy(&mutex);
   delete condVar;
 }
 // =================================================================================
