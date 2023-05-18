@@ -2,12 +2,12 @@
 
 - [Part 1: RECURSIVE LOCKS](#part-1-recursive-locks)
   - [1. Lock Attributes](#1-lock-attributes)
-  - [2] Recursive Locks](#2-recursive-locks)
-  - [3] The TODOs](#3-the-todos)
+  - [2. Recursive Locks](#2-recursive-locks)
+  - [3. The TODOs](#3-the-todos)
 - [Part 2: CONDITIONAL VARIABLES](#part-2-conditional-variables)
-  - [1] Recursive Lock implementation dependencies](#1-recursive-lock-implementation-dependencies)
-  - [2] Condition Variables](#2-condition-variables)
-  - [3] The TODOs](#3-the-todos-1)
+  - [1. Recursive Lock implementation dependencies](#1-recursive-lock-implementation-dependencies)
+  - [2. Condition Variables](#2-condition-variables)
+  - [3. The TODOs](#3-the-todos-1)
 
 # Part 1: RECURSIVE LOCKS
 
