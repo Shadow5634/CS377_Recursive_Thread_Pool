@@ -96,16 +96,15 @@ int RecursiveLock::recur_mutex_try_lock()
     
     // recursive acquisition of a free lock by current (before this call) owner thread
     // could also add && (this->info.count > 0) but is guarenteed from unlock function
-    if (this->info.currThreadID == pthread_self())
+    if (pthread_equal(this->info.currThreadID, pthread_self()) != 0)
     {
       res = 0;
     }
     // acquisition of free lock by new (before this call) owner thread
-    // could also add && (this->info.count == 0) but is guarenteed from unlock function 
-    else if (this->info.currThreadID == 0)
+    // note that currthreadId cannot be used since pthread_t is opaque data type
+    else if (this->info.count == 0)
     {
       this->info.currThreadID = pthread_self();
-      this->info.count = 0;
       res = 1;
     }
     // lock has already been acquired by a different thread
