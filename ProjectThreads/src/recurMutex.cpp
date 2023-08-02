@@ -13,7 +13,6 @@ RecursiveLock::RecursiveLock()
   // =================================================================================
   // =================================================================================
 
-  (this->info).currThreadID = 0;                    // initially no thread has acquired lock
   (this->info).count = 0;                           // initially no thread has acquired lock
   pthread_mutex_init(&(this->info_lock), NULL);     // intitialize mutex
   pthread_cond_init(&(this->sleeping_cond), NULL);  // intitialize condition variable
@@ -187,7 +186,6 @@ int RecursiveLock::recur_mutex_unlock()
     // sends signal to wake up a thread that is sleeping in lock function waiting for change to acquire lock
     if (--(this->info.count) == 0)
     {
-      this->info.currThreadID = 0;
       pthread_cond_signal(&(this->sleeping_cond));
       res = 1;
     }
