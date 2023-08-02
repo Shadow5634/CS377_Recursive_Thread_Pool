@@ -178,7 +178,7 @@ int RecursiveLock::recur_mutex_unlock()
 
   pthread_mutex_lock(&(this->info_lock));
     // lock already free or acquired by a different thread
-    if ((this->info.currThreadID == 0) || (this->info.currThreadID != pthread_self()))
+    if ((this->info.count == 0) || (pthread_equal(this->info.currThreadID, pthread_self()) == 0))
     {
       pthread_mutex_unlock(&(this->info_lock));
       return -1;
