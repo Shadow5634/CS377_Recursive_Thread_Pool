@@ -65,10 +65,21 @@ pthread_t RecursiveLock::get_lock_owner()
   // =================================================================================
   // =================================================================================
 
+  pthread_t res;
+
   // locked here despite this function being a simple return in order to
   // avoid reading value while another thread could be modifying it
   pthread_mutex_lock(&(this->info_lock));
-    pthread_t res = this->info.currThreadID;
+
+    if (this->info.count == 0)
+    {
+      res = 0;
+    }
+    else
+    {
+      res = this->info.currThreadID;
+    }
+
   pthread_mutex_unlock(&(this->info_lock));
 
   return res;
