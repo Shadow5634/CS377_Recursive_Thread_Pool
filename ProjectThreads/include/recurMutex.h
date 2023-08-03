@@ -64,6 +64,8 @@
       // returns the thread id of the current owner of the recursive lock
       pthread_t get_lock_owner();
 
+      int isOwner();
+
       // non-blocking function that tries to acquire recursive lock
       int recur_mutex_try_lock();
 
@@ -72,8 +74,6 @@
 
       // unlocks the recursive lock
       int recur_mutex_unlock();
-
-      recur_lock_info get_info();
   };
 
 #endif 

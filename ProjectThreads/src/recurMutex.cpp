@@ -33,17 +33,6 @@ RecursiveLock::~RecursiveLock()
   pthread_cond_destroy(&(this->sleeping_cond)); // free resources for condition variable
 }
 
-recur_lock_info RecursiveLock::get_info()
-{
-  recur_lock_info res;
-
-  pthread_mutex_lock(&(this->info_lock));
-    res = this->info;
-  pthread_mutex_unlock(&(this->info_lock));
-
-  return res;
-}
-
 /**
  * returns the #acquisitions of lock currently
 */
@@ -91,6 +80,28 @@ pthread_t RecursiveLock::get_lock_owner()
       res = this->info.currThreadID;
     }
 
+  pthread_mutex_unlock(&(this->info_lock));
+
+  return res;
+}
+
+/**
+ * Returns 1 if the caller thread owns the recursive lock
+ * Returns 0 otherwise
+*/
+int isOwner()
+{
+  int res;
+
+  pthread_mutex_lock(&(this->info_lock));
+    if ((this->info.count > 0) && (pthread_equal(this->info.currThreadID, pthread_self()) != 0))
+    {
+      res = 1;
+    }
+    else
+    {
+      res = 0;
+    }
   pthread_mutex_unlock(&(this->info_lock));
 
   return res;
