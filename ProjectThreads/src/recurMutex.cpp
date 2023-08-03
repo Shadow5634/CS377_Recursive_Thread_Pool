@@ -134,6 +134,8 @@ int RecursiveLock::recur_mutex_lock()
 
   int res = 0; // variable that keeps track of return value
 
+  // TODO: Decide whether you want a timeout
+
   pthread_mutex_lock(&(this->info_lock));
     // recursive lock has been acquired by a different thread   
     // infinitely wait until you can assume control
@@ -171,6 +173,8 @@ int RecursiveLock::recur_mutex_unlock()
   // =================================================================================
 
   int res; // variable that keeps track of return value
+
+  // TODO: Decide whether you want different return values for free lock vs locked by different thread
 
   pthread_mutex_lock(&(this->info_lock));
     // lock already free or acquired by a different thread
