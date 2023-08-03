@@ -57,7 +57,8 @@ and ready to be acquired by other threads (or the same thread).<br>
 As we have seen, recursive mutexes indeed seem like a powerful idea. The main task is
 to implement the functions mentioned below in `recurMutex.cpp`. To successfully complete it,
 however, you will have to make some additions (not changes) to the `recurMutex.h` header
-file as well. Note that the return values for these functions are mentioned in `recurMutex.cpp`.
+file as well. Note that the return values for these functions are mentioned in `recurMutex.cpp`. 
+You may assume that we are only dealing with a single process.
 
 * `RecursiveLock()`
   - This is the constructor of the recursive mutex class that you shall implement.

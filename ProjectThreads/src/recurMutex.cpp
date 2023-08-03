@@ -13,6 +13,8 @@ RecursiveLock::RecursiveLock()
   // =================================================================================
   // =================================================================================
 
+  // TODO: Decide whether you want pid as well
+
   (this->info).count = 0;                           // initially no thread has acquired lock
   pthread_mutex_init(&(this->info_lock), NULL);     // intitialize mutex
   pthread_cond_init(&(this->sleeping_cond), NULL);  // intitialize condition variable
@@ -89,7 +91,7 @@ pthread_t RecursiveLock::get_lock_owner()
  * Returns 1 if the caller thread owns the recursive lock
  * Returns 0 otherwise
 */
-int isOwner()
+int RecursiveLock::isOwner()
 {
   int res;
 
