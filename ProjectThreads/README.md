@@ -138,7 +138,7 @@ we shall be sticking to for this part of the project.<br>
 
 The main task is to implement the functions mentioned below in `condVar.cpp`. To successfully complete it,
 however, you will have to make some additions (not changes) to the `condVar.h` header
-file as well. Note that the return values for these functions are mentioned in `condVar.cpp`.
+file as well. Note that the return values for these functions are mentioned in `condVar.cpp`. Similar to Part 1, you may assume that we are only dealing with a single process.
 
 * `ConditionVariable()`
   - This is the constructor of the condition variable class that you shall implement.

@@ -91,18 +91,18 @@ pthread_t RecursiveLock::get_lock_owner()
  * Returns 1 if the caller thread owns the recursive lock
  * Returns 0 otherwise
 */
-int RecursiveLock::isOwner()
+bool RecursiveLock::isOwner(pthread_t tid)
 {
-  int res;
+  bool res;
 
   pthread_mutex_lock(&(this->info_lock));
-    if ((this->info.count > 0) && (pthread_equal(this->info.currThreadID, pthread_self()) != 0))
+    if ((this->info.count > 0) && (pthread_equal(this->info.currThreadID, tid) != 0))
     {
-      res = 1;
+      res = true;
     }
     else
     {
-      res = 0;
+      res = false;
     }
   pthread_mutex_unlock(&(this->info_lock));
 
