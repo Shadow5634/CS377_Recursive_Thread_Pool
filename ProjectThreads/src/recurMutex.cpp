@@ -137,19 +137,18 @@ int RecursiveLock::recur_mutex_lock()
   pthread_mutex_lock(&(this->info_lock));
     // recursive lock has been acquired by a different thread   
     // infinitely wait until you can assume control
-    while (pthread_equal(this->info.currThreadID, pthread_self()) == 0)
+    while ((this->info.count > 0) && (pthread_equal(this->info.currThreadID, pthread_self()) == 0))
     {
       pthread_cond_wait(&(this->sleeping_cond), &(this->info_lock));
     }
     // new owner of recursive lock
     if (this->info.count == 0)
     {
+      this->info.currThreadID = pthread_self();
       res = 1;
     }
 
-    // either acquired or reacquired
-    // owner is set and count updated accordingly
-    this->info.currThreadID = pthread_self();
+    // either acquired or reacquired - count updated
     this->info.count++;
   pthread_mutex_unlock(&(this->info_lock));
 
