@@ -33,6 +33,17 @@ RecursiveLock::~RecursiveLock()
   pthread_cond_destroy(&(this->sleeping_cond)); // free resources for condition variable
 }
 
+recur_lock_info RecursiveLock::get_info()
+{
+  recur_lock_info res;
+
+  pthread_mutex_lock(&(this->info_lock));
+    res = this->info;
+  pthread_mutex_unlock(&(this->info_lock));
+
+  return res;
+}
+
 /**
  * returns the #acquisitions of lock currently
 */

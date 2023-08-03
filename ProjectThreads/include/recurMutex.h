@@ -72,6 +72,8 @@
 
       // unlocks the recursive lock
       int recur_mutex_unlock();
+
+      recur_lock_info get_info();
   };
 
 #endif 
