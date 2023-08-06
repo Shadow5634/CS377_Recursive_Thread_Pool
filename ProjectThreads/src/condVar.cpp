@@ -137,20 +137,27 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // =================================================================================
 
   // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
+  // necessary so that after adding tid to sleeping_threads, receiving signal does not 
+  // cause normal disposition to execute
   sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
 
   // add calling thread's id to sleeping list.
+  // opens it up to be woken up from calls to broadcast and signal
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.push_front(pthread_self());
   pthread_mutex_unlock(&(this->list_lock));
 
   // unlock mutex
+  // other thread that acquires this mutex is guarenteed that this thread is 'sleeping'
   pthread_mutex_unlock(mutex);
   
-  // putting thread to sleep/suspending execution until SIGUSR1 received
+  // putting thread to sleep/suspending execution until SIGUSR1 received (signal/broadcast)
   sigwaitinfo(&(this->user_sig), NULL);
 
   // thread has awoken after receiving SIGUSR1
+  // TODO: Problem
+  // but it could still have a SIGUSR1 underway
+
   // removing calling thread id from sleeping list to note that thread is no longer sleeping
   pthread_mutex_lock(&(this->list_lock));
     this->sleeping_threads.remove_if(same_thread);
