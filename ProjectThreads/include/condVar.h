@@ -22,12 +22,20 @@
   #include <list>
   #include <unordered_map>
   #include <algorithm>
+  #include <map>
 
   using namespace std;
 
   ////////////////////////////////////////////////
   // PART 3 - Function TODOs (Class Declaration)
   ////////////////////////////////////////////////
+
+  typedef struct thread_info
+  {
+    pthread_t tid;        // thread id for which thread this info relates to
+    int sleep_count;      // #times thread has been put to sleep using cond_var_wait
+    int latest_sig_count; // wake-up signal was sent for this latest sleep 
+  } thread_info;
 
   class ConditionVariable
   {
@@ -40,6 +48,8 @@
         list<pthread_t> sleeping_threads; // the list of sleeping threads
         pthread_mutex_t list_lock;        // lock to safely access and modify @sleeping_threads
         sigset_t user_sig;                // signal set of only SIGUSR1 to use for sleeping
+
+        std::map<pthread_t, int> thread_info;
       // ### MY IMPLEMENTATION END ###
 
     // do not remove/change any method declarations
