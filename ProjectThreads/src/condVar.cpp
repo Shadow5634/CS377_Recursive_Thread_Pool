@@ -16,7 +16,7 @@ ConditionVariable::ConditionVariable()
   sigemptyset(&(this->user_sig));             
   sigaddset(&(this->user_sig), SIGUSR1);        
 
-  pthread_mutex_init(&(this->list_lock), NULL); // initialize mutex
+  pthread_mutex_init(&(this->sleeping_list_lock), NULL); // initialize mutex
 }
 
 /**
@@ -30,7 +30,7 @@ ConditionVariable::~ConditionVariable()
   // =================================================================================
   // =================================================================================
 
-  pthread_mutex_destroy(&(this->list_lock)); // free resources for mutex
+  pthread_mutex_destroy(&(this->sleeping_list_lock)); // free resources for mutex
 }
 
 /**
@@ -38,9 +38,9 @@ ConditionVariable::~ConditionVariable()
 */
 int ConditionVariable::sleepingThreadCount()
 {
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
     int size = this->sleeping_threads.size();
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   return size;
 }
@@ -50,9 +50,9 @@ int ConditionVariable::sleepingThreadCount()
 */
 bool ConditionVariable::isSleeping(pthread_t tid)
 {
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
     auto ref = find(this->sleeping_threads.begin(), this->sleeping_threads.end(), tid);
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   return (ref != this->sleeping_threads.end());
 }
@@ -72,7 +72,7 @@ int ConditionVariable::cond_var_signal()
 
   int res = 0;
 
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
 
     if(this->sleeping_threads.empty() == false)
     {
@@ -80,7 +80,7 @@ int ConditionVariable::cond_var_signal()
       pthread_kill(this->sleeping_threads.front(), SIGUSR1);
     }
 
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   return res;
 }
@@ -100,7 +100,7 @@ int ConditionVariable::cond_var_broadcast()
 
   int res = 0;
 
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
     auto elemItr = this->sleeping_threads.begin();
 
     while (elemItr != this->sleeping_threads.end())
@@ -109,7 +109,7 @@ int ConditionVariable::cond_var_broadcast()
       elemItr++;
       res = 1;
     }
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   return res;
 }
@@ -143,9 +143,9 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
   // add calling thread's id to sleeping list.
   // opens it up to be woken up from calls to broadcast and signal
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
     this->sleeping_threads.push_front(pthread_self());
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   // unlock mutex
   // other thread that acquires this mutex is guarenteed that this thread is 'sleeping'
@@ -159,9 +159,9 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // but it could still have a SIGUSR1 underway
 
   // removing calling thread id from sleeping list to note that thread is no longer sleeping
-  pthread_mutex_lock(&(this->list_lock));
+  pthread_mutex_lock(&(this->sleeping_list_lock));
     this->sleeping_threads.remove_if(same_thread);
-  pthread_mutex_unlock(&(this->list_lock));
+  pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   // unblocking signal since after being removed from sleeping list
   // it can't be sent SIGUSR1 through signal/broadcast functions being implemented
