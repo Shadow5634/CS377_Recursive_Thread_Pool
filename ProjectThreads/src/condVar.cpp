@@ -17,6 +17,7 @@ ConditionVariable::ConditionVariable()
   sigaddset(&(this->user_sig), SIGUSR1);        
 
   pthread_mutex_init(&(this->sleeping_list_lock), NULL); // initialize mutex
+  pthread_mutex_init(&(this->thread_info_lock), NULL);
 }
 
 /**
@@ -31,6 +32,7 @@ ConditionVariable::~ConditionVariable()
   // =================================================================================
 
   pthread_mutex_destroy(&(this->sleeping_list_lock)); // free resources for mutex
+  pthread_mutex_destroy(&(this->thread_info_lock));
 }
 
 /**
@@ -77,6 +79,24 @@ int ConditionVariable::cond_var_signal()
     if(this->sleeping_threads.empty() == false)
     {
       res = 1;
+
+      pthread_mutex_lock(&(this->thread_info_lock));
+
+        // struct exists for this thread
+        pthread_t thread_to_wake = this->sleeping_threads.front();
+        auto has_struct = this->thread_sleep_info.find(thread_to_wake);
+
+        if (has_struct != this->thread_sleep_info.end())
+        {
+          // check_info
+        }
+        else
+        {
+          // add struct
+        }
+
+      pthread_mutex_unlock(&(this->thread_info_lock));
+
       pthread_kill(this->sleeping_threads.front(), SIGUSR1);
     }
 

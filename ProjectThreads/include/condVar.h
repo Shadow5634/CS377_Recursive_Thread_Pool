@@ -35,6 +35,8 @@
     pthread_t tid;        // thread id for which thread this info relates to
     int sleep_count;      // #times thread has been put to sleep using cond_var_wait
     int latest_sig_count; // wake-up signal was sent for this latest sleep 
+
+    bool sent_signal;
   } thread_info;
 
   class ConditionVariable
@@ -49,7 +51,8 @@
         pthread_mutex_t sleeping_list_lock;        // lock to safely access and modify @sleeping_threads
         sigset_t user_sig;                // signal set of only SIGUSR1 to use for sleeping
 
-        std::map<pthread_t, int> thread_info;
+        std::map<pthread_t, thread_info> thread_sleep_info;
+        pthread_mutex_t thread_info_lock;
       // ### MY IMPLEMENTATION END ###
 
     // do not remove/change any method declarations
