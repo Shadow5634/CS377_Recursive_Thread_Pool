@@ -87,9 +87,6 @@ int ConditionVariable::cond_var_signal()
   // ASSUMPTIONS:
   // -no signal sent should be updated correctly by the wait method
   // -can't delete struct in wait since it will affect the behaviour here???
-  
-  // -Struct exists for all threads in the sleeping list
-  // -This must be guarenteed by the wait function
 
   pthread_mutex_lock(&(this->sleeping_list_lock));
 
@@ -173,6 +170,8 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // =================================================================================
   // =================================================================================
 
+  // TODO: Might want to allocate structs - function stack emptied after one call
+
   // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
   // necessary so that after adding tid to sleeping_threads, receiving signal does not 
   // cause normal disposition to execute
@@ -182,6 +181,17 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // opens it up to be woken up from calls to broadcast and signal
   pthread_mutex_lock(&(this->sleeping_list_lock));
     this->sleeping_threads.push_front(pthread_self());
+
+    // adding the struct
+    // currently assumes not already present or overrides it
+    pthread_mutex_lock(&(this->thread_info_lock));
+      thread_info st;
+      st.tid = pthread_self();
+      st.sent_signal = false;
+
+      this->thread_sleep_info[pthread_self()] = st;
+    pthread_mutex_unlock(&(this->thread_info_lock));
+
   pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   // unlock mutex
@@ -190,10 +200,6 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   
   // putting thread to sleep/suspending execution until SIGUSR1 received (signal/broadcast)
   sigwaitinfo(&(this->user_sig), NULL);
-
-  // thread has awoken after receiving SIGUSR1
-  // TODO: Problem
-  // but it could still have a SIGUSR1 underway
 
   // removing calling thread id from sleeping list to note that thread is no longer sleeping
   pthread_mutex_lock(&(this->sleeping_list_lock));
