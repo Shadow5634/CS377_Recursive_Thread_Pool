@@ -49,7 +49,6 @@
         sigset_t user_sig;                // signal set of only SIGUSR1 to use for sleeping
 
         std::map<pthread_t, thread_info> thread_sleep_info;
-        pthread_mutex_t thread_info_lock;
       // ### MY IMPLEMENTATION END ###
 
     // do not remove/change any method declarations
@@ -75,6 +74,8 @@
 
       // blocking function that suspends execution until woken up through signal/broadcast
       void cond_var_wait(pthread_mutex_t* mutex);
+
+      void send_signal(pthread_t thread_to_wake);
   };
 
 #endif

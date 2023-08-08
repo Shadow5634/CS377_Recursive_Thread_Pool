@@ -17,7 +17,6 @@ ConditionVariable::ConditionVariable()
   sigaddset(&(this->user_sig), SIGUSR1);        
 
   pthread_mutex_init(&(this->sleeping_list_lock), NULL); // initialize mutex
-  pthread_mutex_init(&(this->thread_info_lock), NULL);
 }
 
 /**
@@ -32,7 +31,6 @@ ConditionVariable::~ConditionVariable()
   // =================================================================================
 
   pthread_mutex_destroy(&(this->sleeping_list_lock)); // free resources for mutex
-  pthread_mutex_destroy(&(this->thread_info_lock));
 }
 
 /**
@@ -98,25 +96,29 @@ int ConditionVariable::cond_var_signal()
     }
 
     // arbitarily choosing the first thread to wake (STACK????)
-    pthread_t thread_to_wake = this->sleeping_threads.front();
-
-    pthread_mutex_lock(&(this->thread_info_lock));
-
-      thread_info st = this->thread_sleep_info[thread_to_wake];
-
-      // thread to be woken has not been sent signal yet
-      // thus send signal and mark signal has been sent
-      if (!st.sent_signal)
-      {
-        pthread_kill(thread_to_wake, SIGUSR1);
-        st.sent_signal = true;
-      }
-
-    pthread_mutex_unlock(&(this->thread_info_lock));
+    this->send_signal(this->sleeping_threads.front());
 
   pthread_mutex_unlock(&(this->sleeping_list_lock));
 
   return 1;
+}
+
+/**
+ * Sends signal to @thread_to_wake to wake up if a signal has not already been sent
+ * Assumes that the function call is enclosed by sleeping_list_lock
+*/
+void ConditionVariable::send_signal(pthread_t thread_to_wake)
+{
+
+  thread_info st = this->thread_sleep_info[thread_to_wake];
+
+  // thread to be woken has not been sent signal yet
+  // thus send signal and mark signal has been sent
+  if (!st.sent_signal)
+  {
+    pthread_kill(thread_to_wake, SIGUSR1);
+    st.sent_signal = true;
+  }
 }
 
 /**
@@ -139,7 +141,7 @@ int ConditionVariable::cond_var_broadcast()
 
     while (elemItr != this->sleeping_threads.end())
     {
-      pthread_kill(*elemItr, SIGUSR1);
+      this->send_signal(*elemItr);
       elemItr++;
       res = 1;
     }
@@ -182,13 +184,11 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
     // adding the struct
     // currently assumes not already present or overrides it
-    pthread_mutex_lock(&(this->thread_info_lock));
-      thread_info st;
-      st.tid = pthread_self();
-      st.sent_signal = false;
+    thread_info st;
+    st.tid = pthread_self();
+    st.sent_signal = false;
 
-      this->thread_sleep_info[pthread_self()] = st;
-    pthread_mutex_unlock(&(this->thread_info_lock));
+    this->thread_sleep_info[pthread_self()] = st;
 
   pthread_mutex_unlock(&(this->sleeping_list_lock));
 
