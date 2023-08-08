@@ -59,9 +59,13 @@ bool ConditionVariable::isSleeping(pthread_t tid)
   return (ref != this->sleeping_threads.end());
 }
 
+// auto has_struct = this->thread_sleep_info.find(thread_to_wake);
+// struct exists for thread to be woken
+// if (has_struct != this->thread_sleep_info.end())
+
 /**
  * sends wake up signal to any one of the sleeping threads (if one present)
- * return 0 if no signal (SIGUSR1) sent
+ * return 0 if no signal (SIGUSR1) sent since no sleeping
  * return 1 if singal (SIGUSR1) was sent
 */
 int ConditionVariable::cond_var_signal()
@@ -72,37 +76,50 @@ int ConditionVariable::cond_var_signal()
   // =================================================================================
   // =================================================================================
 
-  int res = 0;
+  // TODO: 
+  // 1] May want separate return values for:
+  //      -No signal since no sleeping
+  //      -No signal if signal already sent
+  // 2] Check how you want the protections to play out
+  //      -Maybe have only 1 lock?
+  //      -Dont have nested locks? - nested locks mean 1 lock suffices
+
+  // ASSUMPTIONS:
+  // -no signal sent should be updated correctly by the wait method
+  // -can't delete struct in wait since it will affect the behaviour here???
+  
+  // -Struct exists for all threads in the sleeping list
+  // -This must be guarenteed by the wait function
 
   pthread_mutex_lock(&(this->sleeping_list_lock));
 
-    if(this->sleeping_threads.empty() == false)
+    // No sleeping threads
+    if(this->sleeping_threads.empty())
     {
-      res = 1;
-
-      pthread_mutex_lock(&(this->thread_info_lock));
-
-        // struct exists for this thread
-        pthread_t thread_to_wake = this->sleeping_threads.front();
-        auto has_struct = this->thread_sleep_info.find(thread_to_wake);
-
-        if (has_struct != this->thread_sleep_info.end())
-        {
-          // check_info
-        }
-        else
-        {
-          // add struct
-        }
-
-      pthread_mutex_unlock(&(this->thread_info_lock));
-
-      pthread_kill(this->sleeping_threads.front(), SIGUSR1);
+      pthread_mutex_unlock(&(this->sleeping_list_lock));
+      return 0;
     }
+
+    // arbitarily choosing the first thread to wake (STACK????)
+    pthread_t thread_to_wake = this->sleeping_threads.front();
+
+    pthread_mutex_lock(&(this->thread_info_lock));
+
+      thread_info st = this->thread_sleep_info[thread_to_wake];
+
+      // thread to be woken has not been sent signal yet
+      // thus send signal and mark signal has been sent
+      if (!st.sent_signal)
+      {
+        pthread_kill(thread_to_wake, SIGUSR1);
+        st.sent_signal = true;
+      }
+
+    pthread_mutex_unlock(&(this->thread_info_lock));
 
   pthread_mutex_unlock(&(this->sleeping_list_lock));
 
-  return res;
+  return 1;
 }
 
 /**
