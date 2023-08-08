@@ -170,8 +170,6 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // =================================================================================
   // =================================================================================
 
-  // TODO: Might want to allocate structs - function stack emptied after one call
-
   // blocking SIGUSR1 so calling thread can wait on it using sigwaitinfo
   // necessary so that after adding tid to sleeping_threads, receiving signal does not 
   // cause normal disposition to execute

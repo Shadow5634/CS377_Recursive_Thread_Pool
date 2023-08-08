@@ -33,10 +33,7 @@
   typedef struct thread_info
   {
     pthread_t tid;        // thread id for which thread this info relates to
-    int sleep_count;      // #times thread has been put to sleep using cond_var_wait
-    int latest_sig_count; // wake-up signal was sent for this latest sleep 
-
-    bool sent_signal;
+    bool sent_signal;     // whether this thread has been sent the wake-up signal
   } thread_info;
 
   class ConditionVariable
