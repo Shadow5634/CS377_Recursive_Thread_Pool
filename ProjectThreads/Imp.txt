@@ -1,0 +1,6 @@
+Some Important Decisions to take while finalizing structure
+
+1] Should students think of the header changes themselves or should we give it to them?
+2] Should we enforce opaqueness of pthread_t and how can we achieve this?
+3] Might want students to define structs in the c file instead of the header for autograder??
+4] Ratio of Manual to Autograded component 
