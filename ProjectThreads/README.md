@@ -163,11 +163,15 @@ file as well. Note that the return values for these functions are mentioned in `
 
 * `int cond_var_signal()`
   - Synonymous with `pthread_cond_signal()`. Send the `SIGUSR1` signal to any one of the 
-    threads sleeping/waiting on the condition variable.
+    threads sleeping/waiting on the condition variable. (HINT: If a sleeping thread has already been 
+    sent the signal to be woken up, you can avoid sending a signal).
 
 * `int cond_var_broadcast()`
   - Synonymous with `pthread_cond_broadcast()`. Send the `SIGUSR1` signal to all of the 
-    threads sleeping/waiting on the condition variable.
+    threads sleeping/waiting on the condition variable. Although not necessary, it might be
+    beneficial for `cond_var_signal` and `cond_var_broadcase` to share a method since there will
+    be common code. (HINT: If a sleeping thread has already been sent the signal to be woken up, 
+    you can avoid sending a signal).
 
 * `void cond_var_wait(pthread_mutex_t* mutex)`
   - Synonymous with `pthread_cond_wait()`. The calling thread must suspend execution/sleep
