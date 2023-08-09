@@ -76,9 +76,9 @@ You may assume that we are only dealing with a single process.
   - This function returns the number of times the recursive lock has been currently acquired.
     Note that it is not necessary that the calling thread is the owner of the recursive mutex.
 
-* `int get_lock_owner()`
-  - This function returns the ID of the thread that has currently acquired the recursive mutex.
-    Note that it is not necessary that the calling thread is the owner of the recursive mutex.
+* `bool isOwner(pthread_t tid)`
+  - This function checks whether the thread id passed in is the owner of the recursive lock.
+    Note that it is not necessary that the caller thread id is the same as the function argument.
 
 * `int recur_mutex_try_lock()`
   - Synonymous with `pthread_mutex_trylock()` function but modified to reflect the 

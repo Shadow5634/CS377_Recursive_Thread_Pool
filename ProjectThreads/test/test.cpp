@@ -32,43 +32,6 @@ int recursiveMutexFact(int num, RecursiveLock* rlock)
 }
 
 /**
- * a thread function that tries to lock a recursive lock that
- * is owned by some other thread. Thus try_lock should return -1
-*/
-void* tryLockHelper(void* vargp)
-{
-  RecursiveLock* rlock = (RecursiveLock*) vargp;
-  EXPECT_EQ(rlock->recur_mutex_try_lock(), -1);
-  return NULL;
-}
-
-/**
- * Ensures that on object initialization the recursive lock is
- * not acquired by any thread i.e. #acquisions = owner thread id = 0
-*/
-TEST(RecurMutex, correctIntializations)
-{
-  RecursiveLock* rlock = new RecursiveLock();
-
-  // confirms that lock is free initially
-  EXPECT_EQ(rlock->get_acqui_count(), 0);
-  EXPECT_EQ(rlock->get_lock_owner(), 0);
-
-  delete rlock;
-}
-
-/**
- * Similar to above, ensures that unlocking a mutex without locking it
- * is an error case and thus returns -1
-*/
-TEST(RecurMutex, basicUnlockTest)
-{
-  RecursiveLock* rlock = new RecursiveLock();
-  EXPECT_EQ(rlock->recur_mutex_unlock(), -1);
-  delete rlock;
-}
-
-/**
  * Tests that no deadlocks occur for recusively computing
  * factorials involving acquiring the recursive lock at the start
  * Tests for edge case of 1 when no recursive made as well
@@ -80,21 +43,45 @@ TEST(RecurMutex, computesFactorial)
   RecursiveLock* rlock = new RecursiveLock();
   int fact1 = recursiveMutexFact(1, rlock);
   int count1 = rlock->get_acqui_count();
-  int owner1 = rlock->get_lock_owner();
+  bool owner1 = rlock->isOwner(pthread_self());
 
   int fact5 = recursiveMutexFact(5, rlock);
   int count5 = rlock->get_acqui_count();
-  int owner5 = rlock->get_lock_owner();
+  bool owner5 = rlock->isOwner(pthread_self());
 
   delete rlock;
 
   EXPECT_EQ(fact1, 1);
   EXPECT_EQ(count1, 0);
-  EXPECT_EQ(owner1, 0);
+  EXPECT_EQ(owner1, false);
 
   EXPECT_EQ(fact5, 120);
   EXPECT_EQ(count5, 0);
-  EXPECT_EQ(owner5, 0);
+  EXPECT_EQ(owner5, false);
+}
+
+/**
+ * Ensures that on object initialization the recursive lock is
+ * not acquired by any thread i.e. #acquisions = 0
+*/
+TEST(RecurMutex, correctIntializations)
+{
+  RecursiveLock* rlock = new RecursiveLock();
+
+  // lock initially free - not acquired and (thus) can't be unlocked
+  EXPECT_EQ(rlock->get_acqui_count(), 0);
+  EXPECT_EQ(rlock->recur_mutex_unlock(), -1);
+
+  delete rlock;
+}
+
+/**
+ * Tests that lock returns correctly for 1 thread
+ * i.e. lock is not acquired by a different thread 
+*/
+TEST(RecurMutex_1thread, basicLockTest)
+{
+
 }
 
 /**
@@ -104,10 +91,10 @@ TEST(RecurMutex, computesFactorial)
  * (again ensuring that unlock returns correct values for unlocking by 1 layer
  * and unlocking fully)
 */
-TEST(RecurMutex, correctCountAndOwnerForLock)
+TEST(RecurMutex_1thread, correctCountAndOwnerForLock)
 {
   RecursiveLock* rlock = new RecursiveLock();
-  int aq = 3;
+  int aq = 4;
 
   for (int i = 0; i < aq; i++)
   {
@@ -118,25 +105,25 @@ TEST(RecurMutex, correctCountAndOwnerForLock)
     else { EXPECT_EQ(val, 0); }
 
     // checks if count and owner updated correctly
-    EXPECT_EQ(rlock->get_lock_owner(), pthread_self());
+    EXPECT_EQ(rlock->isOwner(pthread_self()), true);
     EXPECT_EQ(rlock->get_acqui_count(), i + 1);
   }
 
   // only partially unlocking the mutex
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < (aq - 1); i++)
   {
     // mutex should be unlocked only by 1 layer
     EXPECT_EQ(rlock->recur_mutex_unlock(), 0);
 
     // owner remains the same and count updated correctly
-    EXPECT_EQ(rlock->get_lock_owner(), pthread_self());
+    EXPECT_EQ(rlock->isOwner(pthread_self()), true);
     EXPECT_EQ(rlock->get_acqui_count(), aq - i - 1);
   }
 
   // mutex fully unlocked
   EXPECT_EQ(rlock->recur_mutex_unlock(), 1);
   EXPECT_EQ(rlock->get_acqui_count(), 0);
-  EXPECT_EQ(rlock->get_lock_owner(), 0);
+  EXPECT_EQ(rlock->isOwner(pthread_self()), false);
 
   delete rlock;
 }
@@ -158,6 +145,17 @@ TEST(RecurMutex, basicTryLockTest)
 
   rlock->recur_mutex_unlock();
   delete rlock;
+}
+
+/**
+ * a thread function that tries to lock a recursive lock that
+ * is owned by some other thread. Thus try_lock should return -1
+*/
+void* tryLockHelper(void* vargp)
+{
+  RecursiveLock* rlock = (RecursiveLock*) vargp;
+  EXPECT_EQ(rlock->recur_mutex_try_lock(), -1);
+  return NULL;
 }
 
 // =================================================================================

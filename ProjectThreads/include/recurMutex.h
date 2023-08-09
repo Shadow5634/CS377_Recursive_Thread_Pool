@@ -61,9 +61,7 @@
       // returns the current #acquisitions of the recursive lock
       int get_acqui_count();
 
-      // returns the thread id of the current owner of the recursive lock
-      pthread_t get_lock_owner();
-
+      // checks whether tid matches the current lock owner
       bool isOwner(pthread_t tid);
 
       // non-blocking function that tries to acquire recursive lock

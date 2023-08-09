@@ -178,7 +178,7 @@ void basicRecurTest()
   }
 
   cout << "Count: " << rm->get_acqui_count() << endl;
-  cout << "Thread: " << rm->get_lock_owner() << endl;
+  // cout << "Thread: " << rm->get_lock_owner() << endl;
   delete rm;
   cout << "BASIC RECURSION TEST: PASSSSSSS" << endl;
 }
