@@ -62,16 +62,16 @@
       int get_acqui_count();
 
       // checks whether tid matches the current lock owner
-      bool isOwner(pthread_t tid);
+      bool is_owner(pthread_t tid);
 
       // non-blocking function that tries to acquire recursive lock
-      int recur_mutex_try_lock();
+      int try_lock();
 
       // blocking function to acquire recursive lock
-      int recur_mutex_lock();
+      int lock();
 
       // unlocks the recursive lock
-      int recur_mutex_unlock();
+      int unlock();
   };
 
 #endif 

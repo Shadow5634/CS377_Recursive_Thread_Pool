@@ -172,12 +172,12 @@ void basicRecurTest()
 
   for (int i = 1; i <= 5; i++)
   {
-    rm->recur_mutex_lock();
+    rm->lock();
   }
 
   for (int i = 1; i <= 5; i++)
   {
-    rm->recur_mutex_unlock();
+    rm->unlock();
   }
 
   cout << "Count: " << rm->get_acqui_count() << endl;

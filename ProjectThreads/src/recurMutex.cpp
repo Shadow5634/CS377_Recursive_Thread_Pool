@@ -59,7 +59,7 @@ int RecursiveLock::get_acqui_count()
  * Returns true if @param tid matches the recursive lock owner
  * Returns false otherwise
 */
-bool RecursiveLock::isOwner(pthread_t tid)
+bool RecursiveLock::is_owner(pthread_t tid)
 {
   bool res;
 
@@ -84,7 +84,7 @@ bool RecursiveLock::isOwner(pthread_t tid)
  * return 0:  lock has been succesfully reacquired (calling thread is current owner)
  * return 1:  lock has been succesfully acquired (calling thread is new owner)
 */
-int RecursiveLock::recur_mutex_try_lock()
+int RecursiveLock::try_lock()
 {
   // =================================================================================
   // =================================================================================
@@ -127,7 +127,7 @@ int RecursiveLock::recur_mutex_try_lock()
  * return 0:  lock has been succesfully reacquired (calling thread is current owner)
  * return 1:  lock has been succesfully acquired (calling thread is new owner)
 */
-int RecursiveLock::recur_mutex_lock()
+int RecursiveLock::lock()
 {
   // =================================================================================
   // =================================================================================
@@ -167,7 +167,7 @@ int RecursiveLock::recur_mutex_lock()
  * return 0:  lock has been succesfully unlocked by 1 layer
  * return 1:  lock has been succesfully unlocked fully i.e. open to acquisition by other threads
 */
-int RecursiveLock::recur_mutex_unlock()
+int RecursiveLock::unlock()
 {
   // =================================================================================
   // =================================================================================

@@ -17,17 +17,17 @@ using namespace std;
 */
 int recursiveMutexFact(int num, RecursiveLock* rlock)
 {
-  rlock->recur_mutex_lock();
+  rlock->lock();
     if (num <= 1) // 0! = 1
     {
-      rlock->recur_mutex_unlock();
+      rlock->unlock();
       return 1;
     }
 
     // recursive call to get factorial
     // result not returned immediately since must unlock recursive mutex
     int val = num * recursiveMutexFact(num - 1, rlock);
-  rlock->recur_mutex_unlock();
+  rlock->unlock();
   return val;
 }
 
@@ -43,11 +43,11 @@ TEST(RecurMutex, computesFactorial)
   RecursiveLock rlock;
   int fact1 = recursiveMutexFact(1, &rlock);
   int count1 = rlock.get_acqui_count();
-  bool owner1 = rlock.isOwner(pthread_self());
+  bool owner1 = rlock.is_owner(pthread_self());
 
   int fact5 = recursiveMutexFact(5, &rlock);
   int count5 = rlock.get_acqui_count();
-  bool owner5 = rlock.isOwner(pthread_self());
+  bool owner5 = rlock.is_owner(pthread_self());
 
   EXPECT_EQ(fact1, 1);
   EXPECT_EQ(count1, 0);
@@ -68,20 +68,20 @@ TEST(RecurMutex_1thread, correctIntializations)
 
   // lock initially free - not acquired and (thus) can't be unlocked
   EXPECT_EQ(rlock.get_acqui_count(), 0);
-  EXPECT_EQ(rlock.recur_mutex_unlock(), -1);
+  EXPECT_EQ(rlock.unlock(), -1);
 }
 
 /**
- * Tests that lock returns correctly for 1 thread
+ * Tests that try lock returns correctly for 1 thread
  * i.e. lock is not acquired by a different thread 
 */
-TEST(RecurMutex_1thread, basicLockTest)
+TEST(RecurMutex_1thread, basicTryLockTest)
 {
-
+  RecursiveLock rlock;
 }
 
 /**
- * checks that recur_mutex_lock works correctly
+ * checks that lock works correctly
  * locks the mutex n times (ensuring that lock returns correct 
  * values for first and reacquisition) and then unlocks in n times 
  * (again ensuring that unlock returns correct values for unlocking by 1 layer
@@ -94,14 +94,14 @@ TEST(RecurMutex_1thread, correctCountAndOwnerForLock)
 
   for (int i = 0; i < aq; i++)
   {
-    int val = rlock.recur_mutex_lock();
+    int val = rlock.lock();
 
     // checks if lock returns the correct value
     if (i == 0) { EXPECT_EQ(val, 1); }
     else { EXPECT_EQ(val, 0); }
 
     // checks if count and owner updated correctly
-    EXPECT_EQ(rlock.isOwner(pthread_self()), true);
+    EXPECT_EQ(rlock.is_owner(pthread_self()), true);
     EXPECT_EQ(rlock.get_acqui_count(), i + 1);
   }
 
@@ -109,17 +109,17 @@ TEST(RecurMutex_1thread, correctCountAndOwnerForLock)
   for (int i = 0; i < (aq - 1); i++)
   {
     // mutex should be unlocked only by 1 layer
-    EXPECT_EQ(rlock.recur_mutex_unlock(), 0);
+    EXPECT_EQ(rlock.unlock(), 0);
 
     // owner remains the same and count updated correctly
-    EXPECT_EQ(rlock.isOwner(pthread_self()), true);
+    EXPECT_EQ(rlock.is_owner(pthread_self()), true);
     EXPECT_EQ(rlock.get_acqui_count(), aq - i - 1);
   }
 
   // mutex fully unlocked
-  EXPECT_EQ(rlock.recur_mutex_unlock(), 1);
+  EXPECT_EQ(rlock.unlock(), 1);
   EXPECT_EQ(rlock.get_acqui_count(), 0);
-  EXPECT_EQ(rlock.isOwner(pthread_self()), false);
+  EXPECT_EQ(rlock.is_owner(pthread_self()), false);
 }
 
 /**
@@ -131,13 +131,13 @@ TEST(RecurMutex, basicTryLockTest)
   void* tryLockHelper(void* vargp);
 
   RecursiveLock rlock;
-  rlock.recur_mutex_lock();
+  rlock.lock();
 
   pthread_t fail;
   pthread_create(&fail, NULL, tryLockHelper, (void*) &rlock);
   pthread_join(fail, NULL);
 
-  rlock.recur_mutex_unlock();
+  rlock.unlock();
 }
 
 /**
@@ -147,7 +147,7 @@ TEST(RecurMutex, basicTryLockTest)
 void* tryLockHelper(void* vargp)
 {
   RecursiveLock* rlock = (RecursiveLock*) vargp;
-  EXPECT_EQ(rlock->recur_mutex_try_lock(), -1);
+  EXPECT_EQ(rlock->try_lock(), -1);
   return NULL;
 }
 
