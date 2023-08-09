@@ -220,23 +220,25 @@ TEST(RecurMutex_1thread, allFunctionsTest)
   EXPECT_EQ(rlock.is_owner(pthread_self()), false);
 }
 
+
 /**
  * Checks that try lock returns -1 when trying to acquire a lock
  * that has already been acquired by a different thread
 */
-// TEST(RecurMutex, basicTryLockTest)
-// {
-//   void* tryLockHelper(void* vargp);
+TEST(RecurMutex_MultiThread, basicTryLockTest)
+{
+  void* tryLockHelper(void* vargp);
 
-//   RecursiveLock rlock;
-//   rlock.lock();
+  RecursiveLock rlock;
+  EXPECT_EQ(rlock.try_lock(), 1);
 
-//   pthread_t fail;
-//   pthread_create(&fail, NULL, tryLockHelper, (void*) &rlock);
-//   pthread_join(fail, NULL);
+  pthread_t fail;
+  pthread_create(&fail, NULL, tryLockHelper, (void*) &rlock);
+  pthread_join(fail, NULL);
 
-//   rlock.unlock();
-// }
+  EXPECT_EQ(rlock.is_owner(pthread_self()), true);
+  EXPECT_EQ(rlock.get_acqui_count(), 1);
+}
 
 /**
  * a thread function that tries to lock a recursive lock that
@@ -245,7 +247,39 @@ TEST(RecurMutex_1thread, allFunctionsTest)
 void* tryLockHelper(void* vargp)
 {
   RecursiveLock* rlock = (RecursiveLock*) vargp;
+  EXPECT_EQ(rlock->is_owner(pthread_self()), false);
   EXPECT_EQ(rlock->try_lock(), -1);
+  return NULL;
+}
+
+TEST(RecurMutex_MultiThread, basicLockTest)
+{
+  void* lockHelper(void* vargp);
+
+  RecursiveLock rlock;
+  EXPECT_EQ(rlock.lock(), 1);
+
+  pthread_t tid;
+  pthread_create(&tid, NULL, lockHelper, (void*) &rlock);
+
+  sleep(1);
+  EXPECT_EQ(rlock.is_owner(pthread_self()), true);
+  EXPECT_EQ(rlock.get_acqui_count(), 1);
+  EXPECT_EQ(rlock.unlock(), 1);
+
+  pthread_join(tid, NULL);
+  EXPECT_EQ(rlock.is_owner(pthread_self()), false);
+  EXPECT_EQ(rlock.get_acqui_count(), 0);
+}
+
+void* lockHelper(void* vargp)
+{
+  RecursiveLock* rlock = (RecursiveLock*) vargp;
+  EXPECT_EQ(rlock->lock(), 1);
+  EXPECT_EQ(rlock->is_owner(pthread_self()), true);
+  EXPECT_EQ(rlock->get_acqui_count(), 1);
+  EXPECT_EQ(rlock->unlock(), 1);
+
   return NULL;
 }
 
