@@ -55,49 +55,52 @@ int main(int argc, char** argv)
   void* sender(void* vargp);
   void* receiver(void* vargp);
 
-  // testing
+  cout << "End of main" << endl;
 
-  // CODE after this has set signal handler for SIGUSR1 AND SIGUSR2 to nothing
-  cv = new ConditionVariable();
-
-  pthread_mutex_init(&l, NULL);
-  pthread_cond_init(&cond, NULL);
-
-  // pthread_t t;
-  // pthread_create(&t, NULL, condHelper, NULL);
-  // cout << "Sending signal" << endl;
-  // pthread_cond_signal(&cond);
-  // pthread_join(t, NULL);
-
-  // pthread_create(arr, NULL, sender, NULL);
-  // pthread_create((arr + 1), NULL, receiver, NULL);
-  // pthread_join(arr[0], NULL);
-  // pthread_join(arr[1], NULL);
-
-  // cv = new ConditionVariable();
-
-  // pthread_create(arr, NULL, condSigSenderACT, NULL);
-  // pthread_create((arr + 1), NULL, condSigReceiverACT, NULL);
-  // pthread_join(arr[0], NULL);
-  // pthread_join(arr[1], NULL);
-
-  // CONDVAR TESTING
-  // pthread_create(arr, NULL, condSigSender, NULL);
-  // pthread_create((arr + 1), NULL, condSigReceiver, NULL);
-  // pthread_join(arr[0], NULL);
-  // pthread_join(arr[1], NULL);
-  // RECURMUTEX TESTING
-  // basicRecurTest();
-
-  // signal handler for SIGUSR1 AND SIGUSR2 back to default
-  delete cv;
-  // pthread_kill(1, SIGUSR1);
-
-  cout << "MAIN FINISHEDD" << endl;
-  pthread_mutex_destroy(&l);
-  pthread_cond_destroy(&cond);
   return 0;
 }
+
+// testing
+
+// CODE after this has set signal handler for SIGUSR1 AND SIGUSR2 to nothing
+// cv = new ConditionVariable();
+
+// pthread_mutex_init(&l, NULL);
+// pthread_cond_init(&cond, NULL);
+
+// pthread_t t;
+// pthread_create(&t, NULL, condHelper, NULL);
+// cout << "Sending signal" << endl;
+// pthread_cond_signal(&cond);
+// pthread_join(t, NULL);
+
+// pthread_create(arr, NULL, sender, NULL);
+// pthread_create((arr + 1), NULL, receiver, NULL);
+// pthread_join(arr[0], NULL);
+// pthread_join(arr[1], NULL);
+
+// cv = new ConditionVariable();
+
+// pthread_create(arr, NULL, condSigSenderACT, NULL);
+// pthread_create((arr + 1), NULL, condSigReceiverACT, NULL);
+// pthread_join(arr[0], NULL);
+// pthread_join(arr[1], NULL);
+
+// CONDVAR TESTING
+// pthread_create(arr, NULL, condSigSender, NULL);
+// pthread_create((arr + 1), NULL, condSigReceiver, NULL);
+// pthread_join(arr[0], NULL);
+// pthread_join(arr[1], NULL);
+// RECURMUTEX TESTING
+// basicRecurTest();
+
+// signal handler for SIGUSR1 AND SIGUSR2 back to default
+// delete cv;
+// // pthread_kill(1, SIGUSR1);
+
+// cout << "MAIN FINISHEDD" << endl;
+// pthread_mutex_destroy(&l);
+// pthread_cond_destroy(&cond);
 
 // THESE TWO METHODS SHOW THAT COND_WAIT GOES TO DEFAULT SIGHANDLER OF THE INCOMING SIGNAL
 void* sender(void* vargp)
