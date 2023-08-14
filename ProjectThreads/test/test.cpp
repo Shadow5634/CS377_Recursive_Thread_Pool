@@ -302,6 +302,10 @@ typedef struct encompass
   int modify;
 } encompass;
 
+void* waitHelper(void* vargp);
+void sigUsr1Handler(int sigNum);
+void sigUsr2Handler(int sigNum);
+
 /**
  * Ensures that object initialization is done correctly
 */
@@ -313,6 +317,105 @@ TEST(CondVar_1thread, correctIntializations)
   EXPECT_EQ(condVar.isSleeping(pthread_self()), false);
   EXPECT_EQ(condVar.signal(), 0);
   EXPECT_EQ(condVar.cond_var_broadcast(), 0);
+}
+
+void sigUsr1Handler(int signum)
+{
+  EXPECT_EQ(1, 0);
+  return;
+}
+
+void sigUsr2Handler(int signum)
+{
+  EXPECT_EQ(1, 0);
+  return;
+}
+
+void* waitHelper(void* vargp)
+{
+  encompass* condStruct = (encompass*) vargp;
+  
+  pthread_mutex_lock(condStruct->mutex);
+    condStruct->condVar->cond_var_wait(condStruct->mutex);
+  pthread_mutex_unlock(condStruct->mutex);
+
+  condStruct->modify = 1;
+  return NULL;
+}
+
+// pthread_mutexattr_t attr;  // Mutex attributes variable
+// pthread_mutexattr_init(&attr);  // Initialize mutex attributes
+// pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ROBUST);
+
+TEST(CondVar_MultiThread, basicWaitTest)
+{
+  ConditionVariable condVar;
+
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+
+  encompass condStruct;
+  condStruct.condVar = &condVar;
+  condStruct.mutex = &mutex;
+  condStruct.modify = 0;
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, waitHelper, (void*) &condStruct);
+  usleep(1); pthread_kill(thread, SIGUSR1);
+
+  pthread_join(thread, NULL);
+  EXPECT_EQ(condStruct.modify, 1);
+  pthread_mutex_destroy(&mutex);
+}
+
+TEST(CondVar_MultiThread, waitTestHandler)
+{
+  ConditionVariable condVar;
+
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+
+  encompass condStruct;
+  condStruct.condVar = &condVar;
+  condStruct.mutex = &mutex;
+  condStruct.modify = 0;
+
+  struct sigaction st;
+  st.sa_handler = sigUsr1Handler;
+  sigaction(SIGUSR1, &st, NULL);
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, waitHelper, (void*) &condStruct);
+  usleep(1); pthread_kill(thread, SIGUSR1);
+
+  pthread_join(thread, NULL);
+  EXPECT_EQ(condStruct.modify, 1);
+  pthread_mutex_destroy(&mutex);
+}
+
+// TEST SHOULD FAIL AS OF NOW
+TEST(CondVar_MultiThread, waitTestHandlerAdvanced)
+{
+  ConditionVariable condVar;
+
+  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
+
+  encompass condStruct;
+  condStruct.condVar = &condVar;
+  condStruct.mutex = &mutex;
+  condStruct.modify = 0;
+
+  struct sigaction st;
+  st.sa_handler = sigUsr2Handler;
+  sigaction(SIGUSR2, &st, NULL);
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, waitHelper, (void*) &condStruct);
+  usleep(1); pthread_kill(thread, SIGUSR2);
+
+  pthread_join(thread, NULL);
+  pthread_mutex_destroy(&mutex);
 }
 
 /**
