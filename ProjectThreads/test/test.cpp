@@ -316,7 +316,7 @@ TEST(CondVar_1thread, correctIntializations)
   EXPECT_EQ(condVar.sleepingThreadCount(), 0);
   EXPECT_EQ(condVar.isSleeping(pthread_self()), false);
   EXPECT_EQ(condVar.signal(), 0);
-  EXPECT_EQ(condVar.cond_var_broadcast(), 0);
+  EXPECT_EQ(condVar.broadcast(), 0);
 }
 
 void sigUsr1Handler(int signum)
@@ -336,7 +336,7 @@ void* waitHelper(void* vargp)
   encompass* condStruct = (encompass*) vargp;
   
   pthread_mutex_lock(condStruct->mutex);
-    condStruct->condVar->cond_var_wait(condStruct->mutex);
+    condStruct->condVar->wait(condStruct->mutex);
   pthread_mutex_unlock(condStruct->mutex);
 
   condStruct->modify = 1;
@@ -426,7 +426,7 @@ TEST(CondVar_MultiThread, waitTestHandlerAdvanced)
 }
 
 /**
- * calls cond_var_wait while ensuring that the associated
+ * calls wait while ensuring that the associated
  * mutex is locked before and unlocked after the wait
 */
 void* condHelper(void* vargp)
@@ -436,7 +436,7 @@ void* condHelper(void* vargp)
   pthread_mutex_t* mutex = condStruct->mutex;
 
   pthread_mutex_lock(mutex);
-    condVar->cond_var_wait(mutex);
+    condVar->wait(mutex);
   pthread_mutex_unlock(mutex);
 
   condStruct->modify = 10;
@@ -455,7 +455,7 @@ void* condHelper(void* vargp)
 //   EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
 
 //   EXPECT_EQ(condVar->signal(), 0);
-//   EXPECT_EQ(condVar->cond_var_broadcast(), 0);
+//   EXPECT_EQ(condVar->broadcast(), 0);
 
 //   delete condVar;
 // }
@@ -493,7 +493,7 @@ void* condHelper(void* vargp)
 // }
 
 /**
- * Confirms that cond_var_broadcast wakes up all the threads waiting on the condition
+ * Confirms that broadcast wakes up all the threads waiting on the condition
 */
 // TEST(CondVar, broadcastTest)
 // {
@@ -512,7 +512,7 @@ void* condHelper(void* vargp)
 //   }
 
 //   usleep(1); // letting threads be put to sleep
-//   int val = condVar->cond_var_broadcast();
+//   int val = condVar->broadcast();
 //   usleep(1); // letting threads wake up
 //   EXPECT_EQ(val, 1);  // signals were sent
 //   EXPECT_EQ(condVar->sleepingThreadCount(), 0);  // no sleeping threads

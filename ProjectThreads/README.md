@@ -166,21 +166,21 @@ file as well. Note that the return values for these functions are mentioned in `
     threads sleeping/waiting on the condition variable. (HINT: If a sleeping thread has already been 
     sent the signal to be woken up, you can avoid sending a signal).
 
-* `int cond_var_broadcast()`
+* `int broadcast()`
   - Synonymous with `pthread_cond_broadcast()`. Send the `SIGUSR1` signal to all of the 
     threads sleeping/waiting on the condition variable. Although not necessary, it might be
     beneficial for `cond_var_signal` and `cond_var_broadcase` to share a method since there will
     be common code. (HINT: If a sleeping thread has already been sent the signal to be woken up, 
     you can avoid sending a signal).
 
-* `void cond_var_wait(pthread_mutex_t* mutex)`
+* `void wait(pthread_mutex_t* mutex)`
   - Synonymous with `pthread_cond_wait()`. The calling thread must suspend execution/sleep
     until it is sent the `SIGUSR1` signal through a call to the signal or broadcast functions.
     Just like the actual function, you must follow the process of releasing and reacquiring
     the mutex passed in as the argument. You may assume that the calling thread has already
     acquired the mutex at the start of the function call. In conjunction with the second 
     paragraph of the man page for `pthread_cond_wait()`, ensure that after the lock has been 
-    released, a call to `cond_var_broadcast()` will wake it up (and that a call to `signal`
+    released, a call to `broadcast()` will wake it up (and that a call to `signal`
     could wake it up). Note that you must *not* ignore, block, or change signal dispositions 
     for any signal apart from `SIGUSR1`. Also note that after returning from this function,
     sending a `SIGUSR1` signal to this process should terminate the process (default action).

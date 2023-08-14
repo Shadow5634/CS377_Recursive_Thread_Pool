@@ -126,7 +126,7 @@ void ConditionVariable::send_signal(pthread_t thread_to_wake)
  * return 0 if no signal (SIGUSR1) sent
  * return 1 if singals (SIGUSR1) were sent
 */
-int ConditionVariable::cond_var_broadcast()
+int ConditionVariable::broadcast()
 {
   // =================================================================================
   // =================================================================================
@@ -165,7 +165,7 @@ int ConditionVariable::cond_var_broadcast()
  * process wakes up/resumes execution on receiving signal (SIGUSR1)
  * Returns the value returned by sigwaitinfo
 */
-int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
+int ConditionVariable::wait(pthread_mutex_t* mutex)
 {
   // =================================================================================
   // =================================================================================

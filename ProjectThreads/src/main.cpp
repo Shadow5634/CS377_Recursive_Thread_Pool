@@ -128,7 +128,7 @@ void* receiver(void* vargp)
 void* condSigSenderACT(void* vargp)
 {
   cout << "Sender sending broadcast\n" << endl;
-  cv->cond_var_broadcast();
+  cv->broadcast();
   return NULL;
 }
 
@@ -136,7 +136,7 @@ void* condSigReceiverACT(void* vargp)
 {
   cout << "Receiver cond waiting\n" << endl;
   pthread_mutex_lock(&l);
-    cv->cond_var_wait(&l);
+    cv->wait(&l);
   pthread_mutex_unlock(&l);
   cout << "Receiver awoken from cond waiting\n" << endl;
   return NULL;
@@ -146,13 +146,13 @@ void* condSigSender(void* vargp)
 {
   cout << "Sender starting\n" << endl;
   // cout << "Sender sending broadcast\n" << endl;
-  // cv->cond_var_broadcast();
+  // cv->broadcast();
   // cout << "sending random signal usr2" << endl;
   // pthread_kill(arr[1], SIGUSR2);
 
   sleep(5);
   cout << "Sender sending broadcast\n" << endl;
-  cv->cond_var_broadcast();
+  cv->broadcast();
   return NULL;
 }
 
@@ -160,7 +160,7 @@ void* condSigReceiver(void* vargp)
 {
   cout << "Receiver cond waiting\n" << endl;
   pthread_mutex_lock(&l);
-    cv->cond_var_wait(&l);
+    cv->wait(&l);
   pthread_mutex_unlock(&l);
   cout << "Receiver awoken from cond\n" << endl;
   return NULL;
