@@ -66,7 +66,7 @@ bool ConditionVariable::isSleeping(pthread_t tid)
  * return 0 if no signal (SIGUSR1) sent since no sleeping
  * return 1 if singal (SIGUSR1) was sent
 */
-int ConditionVariable::cond_var_signal()
+int ConditionVariable::signal()
 {
   // =================================================================================
   // =================================================================================

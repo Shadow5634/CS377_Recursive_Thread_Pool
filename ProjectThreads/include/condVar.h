@@ -67,7 +67,7 @@
       bool isSleeping(pthread_t tid);
 
       // send a singal (SIGUSR1) to any one of the sleeping threads to be woken up
-      int cond_var_signal();
+      int signal();
 
       // send signal(SIGUSR1) to all of the sleeping threads to be woken up
       int cond_var_broadcast();

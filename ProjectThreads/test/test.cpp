@@ -262,7 +262,7 @@ TEST(RecurMutex_MultiThread, basicLockTest)
   pthread_t tid;
   pthread_create(&tid, NULL, lockHelper, (void*) &rlock);
 
-  sleep(1);
+  // sleep(1);
   EXPECT_EQ(rlock.is_owner(pthread_self()), true);
   EXPECT_EQ(rlock.get_acqui_count(), 1);
   EXPECT_EQ(rlock.unlock(), 1);
@@ -303,6 +303,19 @@ typedef struct encompass
 } encompass;
 
 /**
+ * Ensures that object initialization is done correctly
+*/
+TEST(CondVar_1thread, correctIntializations)
+{
+  ConditionVariable condVar;
+
+  EXPECT_EQ(condVar.sleepingThreadCount(), 0);
+  EXPECT_EQ(condVar.isSleeping(pthread_self()), false);
+  EXPECT_EQ(condVar.signal(), 0);
+  EXPECT_EQ(condVar.cond_var_broadcast(), 0);
+}
+
+/**
  * calls cond_var_wait while ensuring that the associated
  * mutex is locked before and unlocked after the wait
 */
@@ -331,7 +344,7 @@ void* condHelper(void* vargp)
 //   EXPECT_EQ(condVar->sleepingThreadCount(), 0);
 //   EXPECT_EQ(condVar->isSleeping(pthread_self()), false);
 
-//   EXPECT_EQ(condVar->cond_var_signal(), 0);
+//   EXPECT_EQ(condVar->signal(), 0);
 //   EXPECT_EQ(condVar->cond_var_broadcast(), 0);
 
 //   delete condVar;
@@ -404,7 +417,7 @@ void* condHelper(void* vargp)
 // }
 
 /**
- * Checks to see that cond_var_signal wakes up only 1 thread at a time
+ * Checks to see that signal wakes up only 1 thread at a time
 */
 // TEST(CondVar, signalTest)
 // {
@@ -423,12 +436,12 @@ void* condHelper(void* vargp)
 //   }
 
 //   usleep(1); // letting threads be put to sleep
-//   int val = condVar->cond_var_signal();
+//   int val = condVar->signal();
 //   usleep(1); // letting a thread wake up
 //   EXPECT_EQ(val, 1); // signal sent
 //   EXPECT_EQ(condVar->sleepingThreadCount(), 1); // only 1 of 2 threads awoken
 
-//   int val2 = condVar->cond_var_signal();
+//   int val2 = condVar->signal();
 //   usleep(1); // letting a thread wake up
 //   EXPECT_EQ(val2, 1); // signal sent
 //   EXPECT_EQ(condVar->sleepingThreadCount(), 0); // 1 of 1 thread awoken
