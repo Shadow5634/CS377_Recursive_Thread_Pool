@@ -156,7 +156,7 @@ int ConditionVariable::cond_var_broadcast()
   */
   bool same_thread(pthread_t& listEntry)
   {
-    return (listEntry == pthread_self());
+    return pthread_equal(listEntry, pthread_self());
   }
 // ### MY IMPLEMENTATION START ###
 
