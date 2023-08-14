@@ -347,6 +347,9 @@ void* waitHelper(void* vargp)
 // pthread_mutexattr_init(&attr);  // Initialize mutex attributes
 // pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ROBUST);
 
+/**
+ * Sending sleeping thread SIGUSR1 correctly wakes it up
+*/
 TEST(CondVar_MultiThread, basicWaitTest)
 {
   ConditionVariable condVar;
@@ -368,6 +371,10 @@ TEST(CondVar_MultiThread, basicWaitTest)
   pthread_mutex_destroy(&mutex);
 }
 
+/**
+ * Sending sleeping thread SIGUSR1 correctly wakes it up
+ * Also ensures that signal handler is not run 
+*/
 TEST(CondVar_MultiThread, waitTestHandler)
 {
   ConditionVariable condVar;

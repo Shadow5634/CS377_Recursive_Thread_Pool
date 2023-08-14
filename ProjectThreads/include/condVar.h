@@ -73,7 +73,7 @@
       int cond_var_broadcast();
 
       // blocking function that suspends execution until woken up through signal/broadcast
-      void cond_var_wait(pthread_mutex_t* mutex);
+      int cond_var_wait(pthread_mutex_t* mutex);
 
       void send_signal(pthread_t thread_to_wake);
   };

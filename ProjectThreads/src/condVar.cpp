@@ -163,8 +163,9 @@ int ConditionVariable::cond_var_broadcast()
 /**
  * puts the caller thread to sleep/suspends execution
  * process wakes up/resumes execution on receiving signal (SIGUSR1)
+ * Returns the value returned by sigwaitinfo
 */
-void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
+int ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 {
   // =================================================================================
   // =================================================================================
@@ -176,6 +177,7 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   // necessary so that after adding tid to sleeping_threads, receiving signal does not 
   // cause normal disposition to execute
   sigprocmask(SIG_BLOCK, &(this->user_sig), NULL);
+  int retVal = 1;
 
   // add calling thread's id to sleeping list.
   // opens it up to be woken up from calls to broadcast and signal
@@ -197,7 +199,7 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
   pthread_mutex_unlock(mutex);
   
   // putting thread to sleep/suspending execution until SIGUSR1 received (signal/broadcast)
-  sigwaitinfo(&(this->user_sig), NULL);
+  retVal = sigwaitinfo(&(this->user_sig), NULL);
 
   // removing calling thread id from sleeping list to note that thread is no longer sleeping
   pthread_mutex_lock(&(this->sleeping_list_lock));
@@ -210,4 +212,6 @@ void ConditionVariable::cond_var_wait(pthread_mutex_t* mutex)
 
   // reacquire lock
   pthread_mutex_lock(mutex);
+
+  return retVal;
 }
